@@ -1,0 +1,68 @@
+{
+    "subjects": [
+        {
+            "name": "JP",
+            "hours": 4
+        },
+        {
+            "name": "JON",
+            "hours": 3
+        },
+        {
+            "name": "Second_JON",
+            "hours": 2
+        },
+        {
+            "name": "Historia",
+            "hours": 2
+        },
+        {
+            "name": "WOS",
+            "hours": 1
+        },
+        {
+            "name": "PPrzedśębiorczości",
+            "hours": 1
+        },
+        {
+            "name": "Geografia",
+            "hours": 2
+        },
+        {
+            "name": "Biologia",
+            "hours": 2
+        },
+        {
+            "name": "Chemia",
+            "hours": 2
+        },
+        {
+            "name": "Fizyka",
+            "hours": 1
+        },
+        {
+            "name": "Matematyka",
+            "hours": 4
+        },
+        {
+            "name": "Informatyka",
+            "hours": 1
+        },
+        {
+            "name": "WF",
+            "hours": 3
+        },
+        {
+            "name": "GW",
+            "hours": 1
+        },
+        {
+            "name": "Religia/Etyka",
+            "hours": 0
+        },
+        {
+            "name": "WDŻR",
+            "hours": 0
+        }
+    ]
+}

@@ -1,0 +1,44 @@
+{
+    "teachers": [
+        {
+            "id":1,
+            "name": "Jan Kowalski",
+            "subjects": ["math", "english", "polish"]
+        },
+        {
+            "id": 2,
+            "name": "Anna Nowak",
+            "subjects": ["math", "biology"]
+        }],
+    "classes": [
+            {
+            "id": 1,
+            "name": "1A",
+            "subjects": [
+                {
+                "name": "math",
+                "hours": 4
+                },
+                {
+                "name": "english",
+                "hours": 3
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "name": "1B",
+            "subjects": [
+                {
+                "name": "math",
+                "hours": 3
+                },
+                
+                {
+                "name": "biology",
+                "hours": 2
+                }
+                ]
+        }
+    ]
+}

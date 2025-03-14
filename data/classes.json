@@ -1,0 +1,15 @@
+{
+    "classes": [
+        {
+            "id": 0,
+            "name": "testClass",
+            "plan": {
+                "pon": [],
+                "wt": [],
+                "sr": [],
+                "czw": [],
+                "pt": []
+            }
+        }
+    ]
+}
