@@ -1,0 +1,84 @@
+{
+    "subjects": [
+        {
+            "name": "BD",
+            "hours": 2
+        },
+        {
+            "name": "Biologia",
+            "hours": 1
+        },
+        {
+            "name": "Chemia",
+            "hours": 2
+        },
+        {
+            "name": "EDB",
+            "hours": 1
+        },
+        {
+            "name": "Etyka",
+            "hours": 1
+        },
+        {
+            "name": "Filozofia",
+            "hours": 1
+        },
+        {
+            "name": "Fizyka",
+            "hours": 2
+        },
+        {
+            "name": "Geografia",
+            "hours": 2
+        },
+        {
+            "name": "GW",
+            "hours": 1
+        },
+        {
+            "name": "GK",
+            "hours": 1
+        },
+        {
+            "name": "Historia",
+            "hours": 2
+        },
+        {
+            "name": "Informatyka",
+            "hours": 1
+        },
+        {
+            "name": "JA",
+            "hours": 2
+        },
+        {
+            "name": "JH",
+            "hours": 2
+        },
+        {
+            "name": "JP",
+            "hours": 3
+        },
+        {
+            "name": "Linux",
+            "hours": 2
+        },
+        {
+            "name": "Matematyka",
+            "hours": 3
+        },
+        {
+            "name": "PP",
+            "hours": 2
+        },
+        {
+            "name": "SI",
+            "hours": 4
+        },
+        {
+            "name": "WF",
+            "hours": 2
+        }
+    ]
+}
