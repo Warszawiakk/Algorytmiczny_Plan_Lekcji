@@ -7,24 +7,13 @@ import time
 
 working_school_type = 0
 
-
-def chose_school_type():
-    print(
-        """
-Wybierz typ szkoły:
-1: Szkoła Podstawowa
-2: Liceum
-3: Technikum
-        """
-    )
-    command = input(">>> ")
-    working_school_type = int(command)
-
-
-def reset_school_type():
-    working_school_type = 0
-    print("Typ szkoły został zresetowany.")
-
+def load_json(file_path):
+    with open(file_path, "r", encoding="utf-8") as file:
+        return json.load(file)
+    
+def class_exists(class_name, file_path):
+    data = load_json(file_path)
+    return any(c["name"] == class_name for c in data["classes"])
 
 def add_teacher():
     pass
@@ -150,7 +139,7 @@ def preset_editor():
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
             """
         )
-        # print(f"Obecna lokalizacja: {working_directory}\n")
+        print(f"Obecna lokalizacja: {working_directory}")
 
         for i, option in enumerate(options):
             prefix = "> " if i == selected else "  "
@@ -170,62 +159,95 @@ def preset_editor():
             if options[selected] == "Exit":
                 break
 
-            # Class internal selection
+            # ----------------
+            # Podmenu: Edytuj klasy
+            # ----------------
             elif options[selected] == "Edytuj klasy":
-                class_options = ["Edytuj wymiar godzinowy dla danej klasy","Usuń klasę","Dodaj klasę","Exit"]
+                class_options = [
+                    "Edytuj wymiar godzinowy dla danego rocznika",
+                    "Modyfikuj klasę",
+                    "Usuń klasę",
+                    "Dodaj klasę",
+                    "Powrót",
+                ]
                 class_selected = 0
 
-                for i, option in enumerate(class_options):
-                    prefix = "> " if i == class_selected else "  "
-                    print(f"{prefix}{option}")
+                def show_class_menu():
+                    os.system("cls" if os.name == "nt" else "clear")
+                    print(
+                        """
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+            Edytor Klas
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+                        """
+                    )
+                    for i, option in enumerate(class_options):
+                        prefix = "> " if i == class_selected else "  "
+                        print(f"{prefix}{option}")
 
-                while keyboard.wait("esc"):
-                    show_menu()
+                return_ = False
+                while return_ == False:
+                    show_class_menu()
                     key = keyboard.read_event().name
 
                     if key == "up" and class_selected > 0:
                         class_selected -= 1
                         time.sleep(0.15)
-                    elif key == "down" and class_selected < len(options) - 1:
+                    elif key == "down" and class_selected < len(class_options) - 1:
                         class_selected += 1
                         time.sleep(0.15)
-                        
                     elif key == "enter":
-                        if class_options[class_selected] == "Exit":
+                        if class_options[class_selected] == "Powrót":
+                            return_ = True
                             break
-                        
-                        if class_options[class_selected] == "Edytuj wymiar godzinowy dla danej klasy":
+
+                        elif class_options[class_selected] == "Edytuj wymiar godzinowy dla danego rocznika":
                             print("Czyli np. dla wszystkich klas pierwszych.")
-                            print("Wybierz klasę: ")
-                            # wybieranie sposród dostępnych klas
-                            # Work needs to be done here
                             
-                        elif class_options[class_selected] == "Usuń klasę":
+                            print("\n Aby wyjść, naciśnij esc")
+                            
                             print("Wybierz klasę: ")
-                            # wybieranie sposród dostępnych klas
+                            keyboard.wait("esc")
+                            
+                        elif class_options[class_selected] == "Modyfikuj klasę":
                             # Work needs to be done here
-                        
+                            print("""
+-------------------
+Modyfikowanie klas
+-------------------
+                                  """)
+
+                        elif class_options[class_selected] == "Usuń klasę":
+                            print("\n Aby wyjść, naciśnij esc")
+                            print("Wybierz klasę do usunięcia: ")
+                            keyboard.wait("esc")
+
                         elif class_options[class_selected] == "Dodaj klasę":
-                            print("Pamiętaj, że nazwa klasy to: [numer][litera alfabetu łacińskiego]")
-                            name = input("Podaj nazwę klasy >>>")
-                            # wykrwanie, czy dana klasa istnieje
-                            # Work needs to be done here
+                            print("\n Aby wyjść, naciśnij esc")
+                            print("Pamiętaj, że nazwa klasy to: [numer][litera]")
+                            name = input("Podaj nazwę klasy >>> ")
+                            
+                            if class_exists(str(name), file_path="data/classes.json") == True:
+                                print("Klasa o podanej nazwie istnieje. Jeżeli chcesz ją zmienic, użyj narzędzia do modyfikowania klas.")
+                            else:
+                                pass
+                            
+                            keyboard.wait("esc")
+
+            
 
             elif options[selected] == "Edytuj dostępność nauczycieli":
-                # Edytowanie pliku teacher_availability
-                # Work needs to be done here
-                pass
-            
-            elif options[selected] == "Edytuj nauczycieli":
-                # Edytowanie pliku teachers
-                    # Wybieranie z pośrod wszystkich dostępnych nauczycieli wylistowanych w pliku json
-                # Work needs to be done here
-                pass
-            
-            # Class internal selection
+                print("\n Aby wyjść, naciśnij esc")
+                print("Edytowanie dostępności nauczycieli...")
+                keyboard.wait("esc")
 
-            print(f"\nWybrano: {options[selected]}")
-            keyboard.wait("esc")
+            elif options[selected] == "Edytuj nauczycieli":
+                print("\n Aby wyjść, naciśnij esc")
+                print("Edytowanie nauczycieli...")
+                keyboard.wait("esc")
+
+    os.system("cls" if os.name == "nt" else "clear")
+    print("Zakończono edycję.")
 
 
 # ----------------------
@@ -242,9 +264,9 @@ def calculate_plan():
 def main():
     print(
         """
-----------------------------          
-ALGORYTMICZNY UKŁADACZ PLANU
-----------------------------
+--------------------------------------
+ALGORYTMICZNY UKŁADACZ PLANU alpha 0.1
+--------------------------------------
           
           """
     )

@@ -56,3 +56,12 @@ Założenia:
     - na podstawie czasu nauczyciela program powinien ograniczać pole wypełniania lekcji w celu optymalizacji.
 
     - wypełnianie lekcji powinno iść od najmniejszej klasy od największej klasy
+
+
+
+Do zrobienia:
+- Naprawić bąd, który nie pozwala na płynne wychodzenie z menu
+- Dodać implementowanie schematu standardowych przedmiotów programowych do nowego presetu
+- Zaimplementować menu wyboru narzędzi w funkcji main
+
+- Po zakończeniu implementowania wszystkich funkcjonalności dot. zarządzania danymi zacząć robić sam algorytm
