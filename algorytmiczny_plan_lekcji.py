@@ -1,5 +1,5 @@
 import json
-
+import os
 
 working_school_type = 0
 
@@ -51,7 +51,7 @@ def remove_class():
 
 
 #
-hour_preset = [str, bool, int]
+hour_preset = [str, str, str]
 
 
 def load_hour_preset():
@@ -101,9 +101,22 @@ Wybierz typ szkoły:
             print(f"Wybrano klasę: {klasa}")
             break
 
+    while yes_no not in ["Y", "y", "N", "n"]:
+        print("Czy chcesz kontynuować?")
+        yes_no = input("(Y/n)? >>> ")
+        if yes_no not in ["Y", "y", "N", "n"]:
+            print(" Złe wejście! Program przyjmuje jedynie wartości: Y,y,N,n. ")
+        elif yes_no in ["Y", "y"]:
+            print("Inicjalizowanie presetu kontynuowane.")
+            break
+        elif yes_no in ["N", "n"]:
+            print("Inicjalizacja przerwana")
+            return 0
+
 
 # ----------------------
 def calculate_plan():
+    # Zapytać się, czy korzystać ze stockowego preseta, czy z własnego preseta.
     pass
 
 
