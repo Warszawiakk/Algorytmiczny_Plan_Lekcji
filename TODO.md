@@ -54,3 +54,5 @@ Założenia:
     - poprzez wbudowaną funkcjonalność, użytkownik powinien być w stanie zmienić priorytety przedmiotowe.
 
     - na podstawie czasu nauczyciela program powinien ograniczać pole wypełniania lekcji w celu optymalizacji.
+
+    - wypełnianie lekcji powinno iść od najmniejszej klasy od największej klasy
