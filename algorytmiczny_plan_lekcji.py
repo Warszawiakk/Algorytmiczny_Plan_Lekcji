@@ -189,13 +189,39 @@ def preset_editor():
                     elif key == "down" and class_selected < len(options) - 1:
                         class_selected += 1
                         time.sleep(0.15)
+                        
                     elif key == "enter":
                         if class_options[class_selected] == "Exit":
                             break
+                        
                         if class_options[class_selected] == "Edytuj wymiar godzinowy dla danej klasy":
+                            print("Czyli np. dla wszystkich klas pierwszych.")
                             print("Wybierz klasę: ")
+                            # wybieranie sposród dostępnych klas
+                            # Work needs to be done here
+                            
+                        elif class_options[class_selected] == "Usuń klasę":
+                            print("Wybierz klasę: ")
+                            # wybieranie sposród dostępnych klas
+                            # Work needs to be done here
+                        
+                        elif class_options[class_selected] == "Dodaj klasę":
+                            print("Pamiętaj, że nazwa klasy to: [numer][litera alfabetu łacińskiego]")
+                            name = input("Podaj nazwę klasy >>>")
+                            # wykrwanie, czy dana klasa istnieje
                             # Work needs to be done here
 
+            elif options[selected] == "Edytuj dostępność nauczycieli":
+                # Edytowanie pliku teacher_availability
+                # Work needs to be done here
+                pass
+            
+            elif options[selected] == "Edytuj nauczycieli":
+                # Edytowanie pliku teachers
+                    # Wybieranie z pośrod wszystkich dostępnych nauczycieli wylistowanych w pliku json
+                # Work needs to be done here
+                pass
+            
             # Class internal selection
 
             print(f"\nWybrano: {options[selected]}")
@@ -205,6 +231,8 @@ def preset_editor():
 # ----------------------
 def calculate_plan():
     # Zapytać się, czy korzystać ze stockowego preseta, czy z własnego preseta.
+    
+    # Work needs to be done here
     pass
 
 
