@@ -207,6 +207,7 @@ def preset_editor():
                             print("\n Aby wyjść, naciśnij esc")
                             
                             print("Wybierz klasę: ")
+                            # Work needs to be done here
                             keyboard.wait("esc")
                             
                         elif class_options[class_selected] == "Modyfikuj klasę":
@@ -220,11 +221,13 @@ Modyfikowanie klas
                         elif class_options[class_selected] == "Usuń klasę":
                             print("\n Aby wyjść, naciśnij esc")
                             print("Wybierz klasę do usunięcia: ")
+                            # Work needs to be done here
                             keyboard.wait("esc")
 
                         elif class_options[class_selected] == "Dodaj klasę":
                             print("\n Aby wyjść, naciśnij esc")
                             print("Pamiętaj, że nazwa klasy to: [numer][litera]")
+                            # Work needs to be done here
                             name = input("Podaj nazwę klasy >>> ")
                             
                             if class_exists(str(name), file_path="data/classes.json") == True:
@@ -239,11 +242,13 @@ Modyfikowanie klas
             elif options[selected] == "Edytuj dostępność nauczycieli":
                 print("\n Aby wyjść, naciśnij esc")
                 print("Edytowanie dostępności nauczycieli...")
+                # Work needs to be done here
                 keyboard.wait("esc")
 
             elif options[selected] == "Edytuj nauczycieli":
                 print("\n Aby wyjść, naciśnij esc")
                 print("Edytowanie nauczycieli...")
+                # Work needs to be done here
                 keyboard.wait("esc")
 
     os.system("cls" if os.name == "nt" else "clear")
