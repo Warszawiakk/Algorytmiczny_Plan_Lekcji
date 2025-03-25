@@ -3,6 +3,7 @@
         {
             "id": 1,
             "name": "1A",
+            "teachers": "",
             "plan": {
                 "pon": [],
                 "wt": [],
@@ -14,6 +15,7 @@
         {
             "id": 2,
             "name": "2A",
+            "teachers": "",
             "plan": {
                 "pon": [],
                 "wt": [],
@@ -25,6 +27,7 @@
         {
             "id": 3,
             "name": "3A",
+            "teachers": "",
             "plan": {
                 "pon": [],
                 "wt": [],
@@ -36,6 +39,7 @@
         {
             "id": 4,
             "name": "3B",
+            "teachers": "",
             "plan": {
                 "pon": [],
                 "wt": [],
@@ -47,6 +51,7 @@
         {
             "id": 5,
             "name": "4A",
+            "teachers": "",
             "plan": {
                 "pon": [],
                 "wt": [],
@@ -58,6 +63,7 @@
         {
             "id": 6,
             "name": "5A",
+            "teachers": "",
             "plan": {
                 "pon": [],
                 "wt": [],

@@ -104,7 +104,21 @@
         },
         {
             "id":18,
-            "name": ""
+            "name": "Aleksandra",
+            "surname": "Kołodziej",
+            "subjects":["Chemia"]
+        },
+        {
+            "id":19,
+            "name": "Marzena",
+            "surname": "Wolska",
+            "subjects": ["Biologia"]
+        },
+        {
+            "id": 20,
+            "name": "Maciej",
+            "surname": "Blazucki",
+            "subjects": ["Grafika Komputerowa"]
         }
     ]
 }

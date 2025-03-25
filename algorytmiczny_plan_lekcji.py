@@ -121,8 +121,52 @@ Wybierz typ szkoły:
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-
 def preset_editor():
     working_directory = ""
+    
+    def set_working_directoy():
+        global working_directory
+        # default:
+        working_directory = "hour_presets/szkoła_średnia/user_presets"
+        
+        print(f"""
+    Lista zestawów użytkownika w: {working_directory}:
+    {os.listdir(working_directory)}
+              """)
+        
+        print("Wybierz:")
+        
+        working_directory_options = os.listdir(working_directory)
+        
+        while not keyboard.is_pressed("enter"):
+            
+            show_menu()
+            key = keyboard.read_event().name
+
+            working_directory_selected = 0
+            
+            if key == "up" and selected > 0:
+                selected -= 1
+                time.sleep(0.15)
+            elif key == "down" and selected < len(working_directory_options) - 1:
+                selected += 1
+                time.sleep(0.15)
+            
+            elif key == "enter":
+                if working_directory_options[working_directory_selected] == "liceum":
+                    working_directory = working_directory + "liceum"
+                    print(f"Wybrano: {"liceum"}")
+                    
+                elif working_directory_options[working_directory_selected] == "technikum":
+                    working_directory = working_directory + "technikum"
+                    print(f"Wybrano: {"technikum"}")
+                    
+                elif working_directory_options[working_directory_selected] == "zawodówka":
+                    working_directory = working_directory + "zawodówka"
+                    print(f"Wybrano: {"zawodówka"}")
+        
+        keyboard.wait("esc")
 
     options = [
+        "Wybierz preset",
         "Edytuj klasy",
         "Edytuj dostępność nauczycieli",
         "Edytuj nauczycieli",
@@ -162,6 +206,8 @@ def preset_editor():
             # ----------------
             # Podmenu: Edytuj klasy
             # ----------------
+            elif options[selected] == "Wybierz preset":
+                set_working_directoy()
             elif options[selected] == "Edytuj klasy":
                 class_options = [
                     "Edytuj wymiar godzinowy dla danego rocznika",
@@ -230,7 +276,8 @@ Modyfikowanie klas
                             # Work needs to be done here
                             name = input("Podaj nazwę klasy >>> ")
                             
-                            if class_exists(str(name), file_path="data/classes.json") == True:
+                            file_path_to_classes_preset = f"{working_directory}/classes.json"
+                            if class_exists(str(name), file_path_to_classes_preset) == True:
                                 print("Klasa o podanej nazwie istnieje. Jeżeli chcesz ją zmienic, użyj narzędzia do modyfikowania klas.")
                             else:
                                 pass
@@ -259,6 +306,31 @@ Modyfikowanie klas
 def calculate_plan():
     # Zapytać się, czy korzystać ze stockowego preseta, czy z własnego preseta.
     
+    # -- Koncepcja dzialania -- #
+    # * Zostaje wczytany json 'klasa[n]', dlatego program wie, jakie przedmioty powinien wypełnić
+    # * Zostaje wczytany json 'teachers'
+    # * Zostaje wczytany json 'teacher_availability'
+    # *                     \/
+    # * Program zaczyna wypełniać pierwszy przedmiot z listy przedmiotów dla klasy 1 (wypełnianie od klasy 1 do klasy ostatniej)
+    # * Sprawdza, w jakich innych (i czy) klasach dany przedmiot występuje, na tej postawie ogranicza wypelnianie.
+    # * Sprawdza, czy dany nauczyciel uczy innych przemiotów, jeżeli tak, to sprawdza jakich, na tej podstawie sprawdza również, czy inne
+    # * klasy/grupy nie mają jednocześnie lekcji z danym nauczycielem, jeżeli tak, ogranicza odpowiednio pole wypełniania.
+    # *                                \/ 
+    # * Obszar wypełniania jest ograniczony poprzez podzielenie liczbę wszystkich godzin dla danej klasy na liczbę dni tygodnia.
+    # *                                \/
+    # * Program sprawdza listę nauczycieli uczących daną klasę -> dopasowywuje przedmiot do nauczyciela, który go uczy (dla danej klasy),
+    #   ogranicza na podstawie nauczyciela, możliwy obszar wypełniania
+    # *                                \/
+    # * Program sprawdza, czy możliwe jest wypełnienie przedmiotu poniżej 3'ech lekcji tego samego dnia.
+    # * Jeżeli tak, program rozkłada wypełnianie na inne wolne dni. Jeżeli nie, to stara się rozłożyć te lekcje jak najdalej od siebie,
+    # * grupujac je w strukturze 2,1 lub 2,2.
+    # *                                \/
+    # * Wypełnianie:
+    # * Program wypełnia wolne pola po kolei, od pierwszej możliwej lekcji (Realizuje to jednocześnie dawanie lekcji jak najwczesniej oraz
+    #   kończenie jak najwcześniej lekcji).
+    # * Kiedy zostaje zakończone wypelnianie dla pierwszej danej klasy, program przechodzi do klasy następnej (powtarza się cały poprzedni
+    #   proces (poza wczytywaniem json'ów, gdyż są one już wczytane))
+    
     # Work needs to be done here
     pass
 
@@ -276,14 +348,7 @@ ALGORYTMICZNY UKŁADACZ PLANU alpha 0.1
           """
     )
     preset_editor()
-    # while True:
-    #     user_input = input(">> ")
-
-    #     if user_input == "exit":
-    #         break
-
-    #     elif user_input == "help":
-    #         pass
+    
 
 
 main()
