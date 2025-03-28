@@ -125,13 +125,17 @@ def preset_editor():
     def set_working_directoy():
         global working_directory
         # default:
+        #
+        #
+        #
+        #
+        #
         working_directory = "hour_presets/szkoła_średnia/user_presets"
         
         print(f"""
     Lista zestawów użytkownika w: {working_directory}:
     {os.listdir(working_directory)}
               """)
-        
         print("Wybierz:")
         
         working_directory_options = os.listdir(working_directory)
@@ -253,6 +257,7 @@ def preset_editor():
                             print("\n Aby wyjść, naciśnij esc")
                             
                             print("Wybierz klasę: ")
+                            
                             # Work needs to be done here
                             keyboard.wait("esc")
                             
@@ -275,6 +280,7 @@ Modyfikowanie klas
                             print("Pamiętaj, że nazwa klasy to: [numer][litera]")
                             # Work needs to be done here
                             name = input("Podaj nazwę klasy >>> ")
+                            
                             
                             file_path_to_classes_preset = f"{working_directory}/classes.json"
                             if class_exists(str(name), file_path_to_classes_preset) == True:
@@ -305,6 +311,121 @@ Modyfikowanie klas
 # ----------------------
 def calculate_plan():
     # Zapytać się, czy korzystać ze stockowego preseta, czy z własnego preseta.
+    
+    def show_menu():
+        os.system("cls" if os.name == "nt" else "clear")
+        for i, option in enumerate(options):
+                        prefix = "> " if i == selected else "  "
+                        print(f"{prefix}{option}")
+                        
+    print("Proszę wybrać, z jakiego zestawu danych korzystać:")
+    
+    options = ["Podstawowe", "Własne"]
+    
+    end_choosing = False
+    location = "hour_presets"
+    
+    
+    while end_choosing == False:
+        selected = 0
+        
+        show_menu()
+        key = keyboard.read_event().name
+        
+        if key == "up" and selected > 0:
+            selected -= 1
+            time.sleep(0.15)
+        elif key == "down" and selected < len(options) - 1:
+            selected += 1
+            time.sleep(0.15)
+        
+        elif key == "enter":
+            if options[selected] == "Podstawowe":
+                print("Wybrano podstawowe zestawy danych.")
+                basic_options = os.listdir(location)
+                print("Wybierz:")
+                basic_selected = 0
+                show_menu()
+                if key == "up" and basic_selected > 0:
+                    basic_selected -= 1
+                    time.sleep(0.15)
+                elif key == "down" and basic_selected < len(basic_options) - 1:
+                    basic_selected += 1
+                    time.sleep(0.15)
+                    
+                elif key== "enter":
+                    if basic_options[basic_selected] == "szkoła_podstawowa":
+                        print("Wybrano: szkoła_podstawowa")
+                        
+                        location = location + "/szkoła_podstawowa"
+                        
+                        elements = os.listdir(location)
+                        print("Elementy w środku:")
+                        for i in range(len(elements)):
+                            print(elements[i])
+                        
+                        print("Czy kontynuować?")
+                        continue_options = ["Tak", "Nie"]
+                        continue_selected = 0
+                        if key == "up" and continue_selected > 0:
+                            continue_selected -= 1
+                            time.sleep(0.15)
+                        elif key == "down" and continue_selected < len(continue_options) - 1:
+                            continue_selected += 1
+                            time.sleep(0.15)
+                        elif key == "enter":
+                            if continue_options[continue_selected] == "Tak":
+                                print("Kontynuowano wykonywanie programu.")
+                                end_choosing = True
+                            elif continue_options[continue_selected] == "Nie":
+                                print("Przerwanie obliczania planu.")
+                                return True
+                        
+                    
+                    elif basic_options[basic_selected] == "szkoła_srednia":
+                        print("Wybrano: szkoła_średnia")
+                        location = location + "/szkoła_podstawowa"
+                        #
+                
+            elif options[selected] == "Własne":
+                print("Wybrano własne zestwy danych.")
+                # Work needs to be done here
+    
+    # sprawdzanie plików, gdy został wybrany zestaw stockowy
+    if location == "hour_presets/szkoła_podstawowa":
+        teacher_path = "data/"
+        with open(teacher_path + "teachers.json", 'r') as file_obj:
+            first_char = file_obj.read(1)
+            if not first_char:
+                print("Nie wczytano nauczycieli! Proszę to uzupełnić, inaczej program się nie wykona")
+                return True
+            else:
+                pass
+        
+        with open(teacher_path + "teacher_availability.json", 'r') as file_obj:
+            first_char = file_obj.read(1)
+            if not first_char:
+                print("Nie wczytano dostępności nauczycieli! prosze to uzupełnić, inaczej program się nie wykona ")
+                return True
+            else:
+                pass
+        
+        with open(teacher_path + "classes.json", 'r') as file_obj:
+            first_char = file_obj.read(1)
+            if not first_char:
+                print("Nie wczytano klas! Nie można obliczyć planu. Proszę to uzupełnić.")
+                return True
+            else:
+                pass
+    
+    else:
+        pass
+        
+            
+            
+    
+    
+    # =========================================================================
     
     # -- Koncepcja dzialania -- #
     # * Zostaje wczytany json 'klasa[n]', dlatego program wie, jakie przedmioty powinien wypełnić
