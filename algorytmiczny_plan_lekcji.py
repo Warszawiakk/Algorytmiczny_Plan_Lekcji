@@ -30,6 +30,8 @@ def modify_teacher():
 def remove_teacher():
     pass
 
+def load_teacher_availability():
+    pass
 
 def add_class():
     pass
@@ -120,6 +122,13 @@ Wybierz typ szkoły:
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-
 def preset_editor():
+    print(
+            """
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    Narzędzie do edytowania zestawów danych
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+            """
+        )
     working_directory = ""
     
     def set_working_directoy():
@@ -157,15 +166,15 @@ def preset_editor():
             elif key == "enter":
                 if working_directory_options[working_directory_selected] == "liceum":
                     working_directory = working_directory + "liceum"
-                    print(f"Wybrano: {"liceum"}")
+                    print(f"Wybrano: liceum")
                     
                 elif working_directory_options[working_directory_selected] == "technikum":
                     working_directory = working_directory + "technikum"
-                    print(f"Wybrano: {"technikum"}")
+                    print(f"Wybrano: technikum")
                     
                 elif working_directory_options[working_directory_selected] == "zawodówka":
                     working_directory = working_directory + "zawodówka"
-                    print(f"Wybrano: {"zawodówka"}")
+                    print(f"Wybrano: zawodówka")
         
         keyboard.wait("esc")
 
@@ -178,23 +187,8 @@ def preset_editor():
     ]
     selected = 0
 
-    def show_menu():
-        os.system("cls" if os.name == "nt" else "clear")
-        print(
-            """
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    Narzędzie do edytowania zestawów danych
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-            """
-        )
-        print(f"Obecna lokalizacja: {working_directory}")
-
-        for i, option in enumerate(options):
-            prefix = "> " if i == selected else "  "
-            print(f"{prefix}{option}")
-
     while True:
-        show_menu()
+        show_menu(options=options, selected=selected)
         key = keyboard.read_event().name
 
         if key == "up" and selected > 0:
@@ -213,6 +207,13 @@ def preset_editor():
             elif options[selected] == "Wybierz preset":
                 set_working_directoy()
             elif options[selected] == "Edytuj klasy":
+                print(
+                        """
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+            Edytor Klas
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+                        """
+                    )
                 class_options = [
                     "Edytuj wymiar godzinowy dla danego rocznika",
                     "Modyfikuj klasę",
@@ -222,22 +223,9 @@ def preset_editor():
                 ]
                 class_selected = 0
 
-                def show_class_menu():
-                    os.system("cls" if os.name == "nt" else "clear")
-                    print(
-                        """
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-            Edytor Klas
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-                        """
-                    )
-                    for i, option in enumerate(class_options):
-                        prefix = "> " if i == class_selected else "  "
-                        print(f"{prefix}{option}")
-
                 return_ = False
                 while return_ == False:
-                    show_class_menu()
+                    show_menu(options=class_options, selected=class_selected)
                     key = keyboard.read_event().name
 
                     if key == "up" and class_selected > 0:
@@ -311,12 +299,6 @@ Modyfikowanie klas
 # ----------------------
 def calculate_plan():
     # Zapytać się, czy korzystać ze stockowego preseta, czy z własnego preseta.
-    
-    def show_menu():
-        os.system("cls" if os.name == "nt" else "clear")
-        for i, option in enumerate(options):
-                        prefix = "> " if i == selected else "  "
-                        print(f"{prefix}{option}")
                         
     print("Proszę wybrać, z jakiego zestawu danych korzystać:")
     
@@ -329,7 +311,7 @@ def calculate_plan():
     while end_choosing == False:
         selected = 0
         
-        show_menu()
+        show_menu(options=options, selected=selected)
         key = keyboard.read_event().name
         
         if key == "up" and selected > 0:
@@ -345,7 +327,8 @@ def calculate_plan():
                 basic_options = os.listdir(location)
                 print("Wybierz:")
                 basic_selected = 0
-                show_menu()
+                
+                show_menu(options=basic_options, selected=basic_selected)
                 if key == "up" and basic_selected > 0:
                     basic_selected -= 1
                     time.sleep(0.15)
@@ -367,33 +350,63 @@ def calculate_plan():
                         print("Czy kontynuować?")
                         continue_options = ["Tak", "Nie"]
                         continue_selected = 0
-                        if key == "up" and continue_selected > 0:
-                            continue_selected -= 1
-                            time.sleep(0.15)
-                        elif key == "down" and continue_selected < len(continue_options) - 1:
-                            continue_selected += 1
-                            time.sleep(0.15)
-                        elif key == "enter":
-                            if continue_options[continue_selected] == "Tak":
-                                print("Kontynuowano wykonywanie programu.")
-                                end_choosing = True
-                            elif continue_options[continue_selected] == "Nie":
-                                print("Przerwanie obliczania planu.")
-                                return True
+                        end_of_sequence = False
+
+                        while not end_of_sequence:
+                            show_menu(options=continue_options, selected=continue_selected)
+                            if key == "up" and continue_selected > 0:
+                                continue_selected -= 1
+                                time.sleep(0.15)
+                            elif key == "down" and continue_selected < len(continue_options) - 1:
+                                continue_selected += 1
+                                time.sleep(0.15)
+                            elif key == "enter":
+                                if continue_options[continue_selected] == "Tak":
+                                    print("Kontynuowano wykonywanie programu.")
+                                    end_of_sequence = True
+                                    end_choosing = True
+                                elif continue_options[continue_selected] == "Nie":
+                                    print("Przerwanie obliczania planu.")
+                                    return True
                         
                     
                     elif basic_options[basic_selected] == "szkoła_srednia":
                         print("Wybrano: szkoła_średnia")
-                        location = location + "/szkoła_podstawowa"
-                        #
+                        location = location + "/szkoła_średnia/liceum"
+                        zakres = ""
+                        mid_school_options = os.listdir(location)
+                        mid_school_selected = 0
+                        
+                        show_menu(options=mid_school_options, selected=mid_school_selected)
+                        if key == "up" and basic_selected > 0:
+                            basic_selected -= 1
+                            time.sleep(0.15)
+                        elif key == "down" and basic_selected < len(basic_options) - 1:
+                            basic_selected += 1
+                            time.sleep(0.15)
+                        
+                        elif key == "enter":
+                            if mid_school_options[mid_school_selected] == "zakres_podstawowy":
+                                print(f"Wybrano {mid_school_options[mid_school_selected]}")
+                                location = location + str(mid_school_options[mid_school_selected])
+                                
+                            elif mid_school_options[mid_school_selected] == "zakres_rozszerzony":
+                                print(f"Wybrano {mid_school_options[mid_school_selected]}")
+                                location = location + str(mid_school_options[mid_school_selected])
+                        # Work needs to be done here
                 
             elif options[selected] == "Własne":
                 print("Wybrano własne zestwy danych.")
+                choosen_preset = ""
                 # Work needs to be done here
     
-    # sprawdzanie plików, gdy został wybrany zestaw stockowy
-    if location == "hour_presets/szkoła_podstawowa":
+    if location == "hour_presets/szkoła_podstawowa" or f"hour_presets/szkoła_średnia/liceum/zakres_{zakres}":
         teacher_path = "data/"
+        
+        open(teacher_path + "teachers.json", "w")
+        open(teacher_path + "teacher_availability.json", 'w')
+        open(teacher_path + "classes.json", 'w')
+        
         with open(teacher_path + "teachers.json", 'r') as file_obj:
             first_char = file_obj.read(1)
             if not first_char:
@@ -418,8 +431,95 @@ def calculate_plan():
             else:
                 pass
     
-    else:
-        pass
+    elif location == f"hour_presets/szkoła_podstawowa/user_presets/liceum/{choosen_preset}":
+        file_empty_error_list = []
+        for klasa in range(4):
+            open(location + f"klasa{klasa}", 'w')
+            
+            with open(location + f"klasa{klasa}", 'r') as file_obj:
+                first_char = file_obj.read(1)
+                if not first_char:
+                    file_empty_error_list.append(f"Plik: klasa{klasa} jest pusty.")
+                else:
+                    pass
+                            
+        open(location + "classes.json", 'w')
+        with open(location + "classes.json", 'r') as file_obj:
+            first_char = file_obj.read(1)
+            if not first_char:
+                file_empty_error_list.append(f"Plik: klasy, jest pusty.")
+            else:
+                pass
+                
+        open(location + "teachers.json", 'w')
+        with open(location + "teachers.json", 'r') as file_obj:
+            first_char = file_obj.read(1)
+            if not first_char:
+                file_empty_error_list.append(f"Plik: nauczyciele, jest pusty.")
+            else:
+                pass
+        
+        open(location + "teacher_availability.json", 'w')
+        with open(location + "teacher_availability.json", 'r') as file_obj:
+            first_char = file_obj.read(1)
+            if not first_char:
+                file_empty_error_list.append(f"Plik: dostępność nauczycieli, jest pusty.")
+            else:
+                pass
+            
+        if len(file_empty_error_list) > 0:
+            print("Obliczanie planu nie może być kontynuowane ze względu na następujące błędy: ")
+            for element in file_empty_error_list:
+                print(element)
+            print("Obliczanie planu zostało przerwane.")
+            return True
+        else:
+            print("Wszystkie pliki zgodne.")
+        
+    
+    elif location == f"hour_presets/szkoła_podstawowa/user_presets/technikum/{choosen_preset}":
+        file_empty_error_list = []
+        for klasa in range(5):
+            open(location + f"klasa{klasa}", 'w')
+            with open(location + f"klasa{klasa}", 'r') as file_obj:
+                first_char = file_obj.read(1)
+                if not first_char:
+                    file_empty_error_list.append(f"Plik: klasa{klasa} jest pusty.")
+                else:
+                    pass
+        
+        open(location + "classes.json", 'w')
+        with open(location + "classes.json", 'r') as file_obj:
+            first_char = file_obj.read(1)
+            if not first_char:
+                file_empty_error_list.append(f"Plik: klasy, jest pusty.")
+            else:
+                pass
+                
+        open(location + "teachers.json", 'w')
+        with open(location + "teachers.json", 'r') as file_obj:
+            first_char = file_obj.read(1)
+            if not first_char:
+                file_empty_error_list.append(f"Plik: nauczyciele, jest pusty.")
+            else:
+                pass
+        
+        open(location + "teacher_availability.json", 'w')
+        with open(location + "teacher_availability.json", 'r') as file_obj:
+            first_char = file_obj.read(1)
+            if not first_char:
+                file_empty_error_list.append(f"Plik: dostępność nauczycieli, jest pusty.")
+            else:
+                pass
+            
+        if len(file_empty_error_list) > 0:
+            print("Obliczanie planu nie może być kontynuowane ze względu na następujące błędy: ")
+            for element in file_empty_error_list:
+                print(element)
+            print("Obliczanie planu zostało przerwane.")
+            return True
+        else:
+            print("Wszystkie pliki zgodne.")
         
             
             
@@ -452,11 +552,39 @@ def calculate_plan():
     # * Kiedy zostaje zakończone wypelnianie dla pierwszej danej klasy, program przechodzi do klasy następnej (powtarza się cały poprzedni
     #   proces (poza wczytywaniem json'ów, gdyż są one już wczytane))
     
+    # =========================================================================
+    
     # Work needs to be done here
     pass
 
 
 # ----------------------
+
+def show_menu(selected, options):
+        os.system("cls" if os.name == "nt" else "clear")
+        for i, option in enumerate(options):
+                        prefix = "> " if i == selected else "  "
+                        print(f"{prefix}{option}")
+
+def main_menu():
+    options = ["Oblicz plan", "Edytuj zestawy danych"]
+    end_of_sequence = False
+    selected = 0
+    
+    key = keyboard.read_event().name    
+    while not end_of_sequence:
+        show_menu(options=options, selected=selected)
+        if key == "up" and basic_selected > 0:
+                            basic_selected -= 1
+                            time.sleep(0.15)
+        elif key == "down" and basic_selected < len(options) - 1:
+                            basic_selected += 1
+                            time.sleep(0.15)
+        elif key == "enter":
+            if options[selected] == "Oblicz plan":
+                calculate_plan()
+            elif options[selected] == "Edytuj zestawy danych":
+                preset_editor()
 
 
 def main():
@@ -468,7 +596,7 @@ ALGORYTMICZNY UKŁADACZ PLANU alpha 0.1
           
           """
     )
-    preset_editor()
+    
     
 
 
