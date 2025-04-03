@@ -15,8 +15,33 @@ def class_exists(class_name, file_path):
     data = load_json(file_path)
     return any(c["name"] == class_name for c in data["classes"])
 
-def add_teacher():
-    pass
+def add_teacher(name, surname, subjects):
+    name = str(input("Proszę podać imię nauczyciela: >>> "))
+    surname = str(input("Proszę podać nazwisko nauczyciela: >>> "))
+    raw_subjects = input("Proszę podać przedmioty, jakich uczy nauczyciel (proszę podawać przedmioty po spacji): >>> ")
+    subjects = []
+    word = ""
+    for letter in raw_subjects:
+        
+        if letter in set("aąbcćdeęfghijklłmnńoópqrsśtuvwxyzźżAĄBCĆDEĘFGHIJKLŁMNŃOÓPQRSŚTUVWXYZŹŻ"):
+            word + letter
+        else:
+            subjects.append(word)
+            word = ""
+            
+    id = int(max(data,key=lambda e: e['id'])) + 1
+    new_teacher = {
+        "id": id,
+        "name": name,
+        "surname": surname,
+        "subjects": subjects
+    }
+    
+    with open("teachers.json", "r", encoding="utf-8") as file:
+        data = json.load(file)
+    data["teachers"].append(new_teacher)
+    with open("teachers.json", "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=4, ensure_ascii=False) 
 
 
 def load_teachers():
@@ -133,12 +158,8 @@ def preset_editor():
     
     def set_working_directoy():
         global working_directory
+        
         # default:
-        #
-        #
-        #
-        #
-        #
         working_directory = "hour_presets/szkoła_średnia/user_presets"
         
         print(f"""
@@ -376,30 +397,35 @@ def calculate_plan():
                         zakres = ""
                         mid_school_options = os.listdir(location)
                         mid_school_selected = 0
+                        end_basic_options = False
                         
-                        show_menu(options=mid_school_options, selected=mid_school_selected)
-                        if key == "up" and basic_selected > 0:
-                            basic_selected -= 1
-                            time.sleep(0.15)
-                        elif key == "down" and basic_selected < len(basic_options) - 1:
-                            basic_selected += 1
-                            time.sleep(0.15)
-                        
-                        elif key == "enter":
-                            if mid_school_options[mid_school_selected] == "zakres_podstawowy":
-                                print(f"Wybrano {mid_school_options[mid_school_selected]}")
-                                location = location + str(mid_school_options[mid_school_selected])
-                                
-                            elif mid_school_options[mid_school_selected] == "zakres_rozszerzony":
-                                print(f"Wybrano {mid_school_options[mid_school_selected]}")
-                                location = location + str(mid_school_options[mid_school_selected])
-                        # Work needs to be done here
+                        while not end_basic_options:
+                            show_menu(options=mid_school_options, selected=mid_school_selected)
+                            if key == "up" and basic_selected > 0:
+                                basic_selected -= 1
+                                time.sleep(0.15)
+                            elif key == "down" and basic_selected < len(basic_options) - 1:
+                                basic_selected += 1
+                                time.sleep(0.15)
+                            
+                            elif key == "enter":
+                                if mid_school_options[mid_school_selected] == "zakres_podstawowy":
+                                    print(f"Wybrano {mid_school_options[mid_school_selected]}")
+                                    location = location + str(mid_school_options[mid_school_selected])
+                                    end_basic_options = True
+                                    
+                                elif mid_school_options[mid_school_selected] == "zakres_rozszerzony":
+                                    print(f"Wybrano {mid_school_options[mid_school_selected]}")
+                                    location = location + str(mid_school_options[mid_school_selected])
+                                    end_basic_options = True
+                            # Work needs to be done here
                 
             elif options[selected] == "Własne":
                 print("Wybrano własne zestwy danych.")
                 choosen_preset = ""
                 # Work needs to be done here
     
+# Sprawdzanie integralności plików \/
     if location == "hour_presets/szkoła_podstawowa" or f"hour_presets/szkoła_średnia/liceum/zakres_{zakres}":
         teacher_path = "data/"
         
@@ -520,6 +546,8 @@ def calculate_plan():
             return True
         else:
             print("Wszystkie pliki zgodne.")
+            
+# Sprawdzanie integralności plików /\
         
             
             
@@ -567,7 +595,7 @@ def show_menu(selected, options):
                         print(f"{prefix}{option}")
 
 def main_menu():
-    options = ["Oblicz plan", "Edytuj zestawy danych"]
+    options = ["Oblicz plan", "Edytuj dane"]
     end_of_sequence = False
     selected = 0
     
@@ -583,8 +611,9 @@ def main_menu():
         elif key == "enter":
             if options[selected] == "Oblicz plan":
                 calculate_plan()
-            elif options[selected] == "Edytuj zestawy danych":
+            elif options[selected] == "Edytuj dane":
                 preset_editor()
+    
 
 
 def main():
@@ -596,6 +625,7 @@ ALGORYTMICZNY UKŁADACZ PLANU alpha 0.1
           
           """
     )
+    main_menu()
     
     
 
