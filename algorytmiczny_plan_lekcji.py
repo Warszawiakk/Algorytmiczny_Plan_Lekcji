@@ -70,18 +70,6 @@ def remove_class():
     pass
 
 
-#
-hour_preset = os.path
-
-
-def load_hour_preset():
-    print("Zestaw został wczytany.")
-
-
-def unload_hour_preset():
-    pass
-
-
 # ----
 
 
@@ -146,17 +134,7 @@ Wybierz typ szkoły:
 
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-
-def preset_editor():
-    print(
-            """
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    Narzędzie do edytowania zestawów danych
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-            """
-        )
-    working_directory = ""
-    
-    def set_working_directoy():
+def set_working_directoy():
         global working_directory
         
         # default:
@@ -169,19 +147,18 @@ def preset_editor():
         print("Wybierz:")
         
         working_directory_options = os.listdir(working_directory)
+        working_directory_selected = 0
         
         while not keyboard.is_pressed("enter"):
             
-            show_menu()
+            show_menu(options=working_directory_options, selected=working_directory_selected)
             key = keyboard.read_event().name
-
-            working_directory_selected = 0
             
-            if key == "up" and selected > 0:
-                selected -= 1
+            if key == "up" and working_directory_selected > 0:
+                working_directory_selected -= 1
                 time.sleep(0.15)
-            elif key == "down" and selected < len(working_directory_options) - 1:
-                selected += 1
+            elif key == "down" and working_directory_selected < len(working_directory_options) - 1:
+                working_directory_selected += 1
                 time.sleep(0.15)
             
             elif key == "enter":
@@ -198,6 +175,16 @@ def preset_editor():
                     print(f"Wybrano: zawodówka")
         
         keyboard.wait("esc")
+
+def preset_editor():
+    print(
+            """
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    Narzędzie do edytowania zestawów danych
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+            """
+        )
+    working_directory = ""
 
     options = [
         "Wybierz preset",
@@ -401,11 +388,11 @@ def calculate_plan():
                         
                         while not end_basic_options:
                             show_menu(options=mid_school_options, selected=mid_school_selected)
-                            if key == "up" and basic_selected > 0:
-                                basic_selected -= 1
+                            if key == "up" and mid_school_selected > 0:
+                                mid_school_selected -= 1
                                 time.sleep(0.15)
-                            elif key == "down" and basic_selected < len(basic_options) - 1:
-                                basic_selected += 1
+                            elif key == "down" and mid_school_selected < len(mid_school_selected) - 1:
+                                mid_school_selected += 1
                                 time.sleep(0.15)
                             
                             elif key == "enter":
@@ -594,30 +581,33 @@ def show_menu(selected, options):
                         prefix = "> " if i == selected else "  "
                         print(f"{prefix}{option}")
 
-def main_menu():
-    options = ["Oblicz plan", "Edytuj dane"]
-    end_of_sequence = False
+def main():
+    options = ["Oblicz plan", "Edytuj dane", "Stwórz nowy preset", "Exit"]
     selected = 0
-    
-    key = keyboard.read_event().name    
-    while not end_of_sequence:
+
+    while True:
         show_menu(options=options, selected=selected)
-        if key == "up" and basic_selected > 0:
-                            basic_selected -= 1
-                            time.sleep(0.15)
-        elif key == "down" and basic_selected < len(options) - 1:
-                            basic_selected += 1
-                            time.sleep(0.15)
+        key = keyboard.read_event().name
+
+        if key == "up" and selected > 0:
+            selected -= 1
+            time.sleep(0.15)
+        elif key == "down" and selected < len(options) - 1:
+            selected += 1
+            time.sleep(0.15)
         elif key == "enter":
             if options[selected] == "Oblicz plan":
                 calculate_plan()
             elif options[selected] == "Edytuj dane":
                 preset_editor()
+            elif options[selected] == "Stwórz nowy preset":
+                initialize_new_preset()
+            elif options[selected] == "Exit":
+                return 0
     
 
 
-def main():
-    print(
+print(
         """
 --------------------------------------
 ALGORYTMICZNY UKŁADACZ PLANU alpha 0.1
@@ -625,10 +615,6 @@ ALGORYTMICZNY UKŁADACZ PLANU alpha 0.1
           
           """
     )
-    main_menu()
-    
-    
 
-
-main()
-# test()
+if __name__ == "__main__":
+    main()
