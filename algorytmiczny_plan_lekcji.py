@@ -44,7 +44,16 @@ def add_teacher(name, surname, subjects):
         json.dump(data, file, indent=4, ensure_ascii=False) 
 
 
-def load_teachers():
+def load_EXCEL_teachers():
+    pass
+
+def load_EXCEL_teacher_availability():
+    pass
+
+def load_EXCEL_classes():
+    pass
+
+def load_EXCEL_class_years():
     pass
 
 
@@ -92,7 +101,7 @@ Wybierz typ szkoły:
             print(f"Wybrano: {school_type}")
             break
 
-    directory = "hour_presets/"
+    directory = "data_sets/"
 
     max_class = 0
 
@@ -138,7 +147,7 @@ def set_working_directoy():
         global working_directory
         
         # default:
-        working_directory = "hour_presets/szkoła_średnia/user_presets"
+        working_directory = "data_sets/szkoła_średnia/user_presets"
         
         print(f"""
     Lista zestawów użytkownika w: {working_directory}:
@@ -149,7 +158,9 @@ def set_working_directoy():
         working_directory_options = os.listdir(working_directory)
         working_directory_selected = 0
         
-        while not keyboard.is_pressed("enter"):
+        end_choosing = False
+        
+        while not end_choosing:
             
             show_menu(options=working_directory_options, selected=working_directory_selected)
             key = keyboard.read_event().name
@@ -223,10 +234,11 @@ def preset_editor():
                         """
                     )
                 class_options = [
-                    "Edytuj wymiar godzinowy dla danego rocznika",
+                    "Modyfikuj rocznik",
                     "Modyfikuj klasę",
                     "Usuń klasę",
                     "Dodaj klasę",
+                    "Dodaj rocznik",
                     "Powrót",
                 ]
                 class_selected = 0
@@ -247,8 +259,8 @@ def preset_editor():
                             return_ = True
                             break
 
-                        elif class_options[class_selected] == "Edytuj wymiar godzinowy dla danego rocznika":
-                            print("Czyli np. dla wszystkich klas pierwszych.")
+                        elif class_options[class_selected] == "Modyfikuj rocznik":
+                            print("Czyli np. rocznik 1")
                             
                             print("\n Aby wyjść, naciśnij esc")
                             
@@ -258,12 +270,8 @@ def preset_editor():
                             keyboard.wait("esc")
                             
                         elif class_options[class_selected] == "Modyfikuj klasę":
+                            print("\n Aby wyjść, naciśnij esc")
                             # Work needs to be done here
-                            print("""
--------------------
-Modyfikowanie klas
--------------------
-                                  """)
 
                         elif class_options[class_selected] == "Usuń klasę":
                             print("\n Aby wyjść, naciśnij esc")
@@ -274,15 +282,63 @@ Modyfikowanie klas
                         elif class_options[class_selected] == "Dodaj klasę":
                             print("\n Aby wyjść, naciśnij esc")
                             print("Pamiętaj, że nazwa klasy to: [numer][litera]")
-                            # Work needs to be done here
                             name = input("Podaj nazwę klasy >>> ")
                             
                             
                             file_path_to_classes_preset = f"{working_directory}/classes.json"
-                            if class_exists(str(name), file_path_to_classes_preset) == True:
-                                print("Klasa o podanej nazwie istnieje. Jeżeli chcesz ją zmienic, użyj narzędzia do modyfikowania klas.")
+                            if working_directory == "":
+                                print("Nie wybrano presetu! Nie można dodać klasy.")
                             else:
-                                pass
+                                if class_exists(str(name), file_path_to_classes_preset) == True:
+                                    # Work needs to be done here -> stworzyć nową klase w jsonie
+                                    pass
+                                else:
+                                    print("Plik classes.json nie istniał, dlatego został stworzony. Uwaga. Plik classes.json jest teraz pusty. Jeżeli plik był wypełniony, należy sprawdzić kosz i przywrócić plik.")
+                                    open(f"{working_directory}/classes.json","w")
+                                    
+                            # Work needs to be done here
+                            keyboard.wait("esc")
+                        
+                        elif class_options[class_selected] == "Dodaj rocznik":
+                            print("\n Aby wyjść, naciśnij esc")
+                            print("Pamiętaj, nie można dodać rocznika który już istnieje.")
+                            
+                            rocznik = input("Proszę podać rocznik (np. 1): ")
+                            
+                            # ta sekcja \/ pozwala, na odfiltrowanie jakichkolwiek liter, które wpisał użytkownik
+                            new_rocznik = ""
+                            for char in rocznik:
+                                if char in ("1","2","3","4","5","6","7","8","9","0"):
+                                    new_rocznik+char
+                                else:
+                                    pass
+                            rocznik = new_rocznik
+                            #           /\
+
+                            file_path_to_classes_preset = f"{working_directory}/klasa{rocznik}.json"
+                            if working_directory == "":
+                                print("Nie wybrano presetu! Nie można dodać klasy.")
+                            else:
+                                if class_exists(str(name), file_path_to_classes_preset) == True:
+                                    print("Podany rocznik już istnieje!")
+                                else:
+                                    existing_class_years = []
+                                    for class_year in os.listdir(file_path_to_classes_preset):
+                                        if class_year.startswith("klasa"):
+                                            new_class_number = ""
+                                            for char in range(4,len(class_year)):
+                                                new_class_number+char
+                                            existing_class_years.append(int(new_class_number))
+                                    
+                                    for element in existing_class_years:
+                                        if existing_class_years[element]+1 < existing_class_years[element+1]:
+                                            print(f"Ostrzeżenie! Brakuje rocznika {element+1}. Zaleca się uzupełnić luki w rocznikach.")
+                                        else:
+                                            pass
+                                    
+
+                                    open(f"{working_directory}/klasa{rocznik}.json", "w")
+                                    print("Rocznik stworzony pomyślnie")
                             
                             keyboard.wait("esc")
 
@@ -313,7 +369,7 @@ def calculate_plan():
     options = ["Podstawowe", "Własne"]
     
     end_choosing = False
-    location = "hour_presets"
+    location = "data_sets"
     
     
     while end_choosing == False:
@@ -413,7 +469,7 @@ def calculate_plan():
                 # Work needs to be done here
     
 # Sprawdzanie integralności plików \/
-    if location == "hour_presets/szkoła_podstawowa" or f"hour_presets/szkoła_średnia/liceum/zakres_{zakres}":
+    if location == "data_sets/szkoła_podstawowa" or f"data_sets/szkoła_średnia/liceum/zakres_{zakres}":
         teacher_path = "data/"
         
         open(teacher_path + "teachers.json", "w")
@@ -444,7 +500,7 @@ def calculate_plan():
             else:
                 pass
     
-    elif location == f"hour_presets/szkoła_podstawowa/user_presets/liceum/{choosen_preset}":
+    elif location == f"data_sets/szkoła_podstawowa/user_presets/liceum/{choosen_preset}":
         file_empty_error_list = []
         for klasa in range(4):
             open(location + f"klasa{klasa}", 'w')
@@ -490,7 +546,7 @@ def calculate_plan():
             print("Wszystkie pliki zgodne.")
         
     
-    elif location == f"hour_presets/szkoła_podstawowa/user_presets/technikum/{choosen_preset}":
+    elif location == f"data_sets/szkoła_podstawowa/user_presets/technikum/{choosen_preset}":
         file_empty_error_list = []
         for klasa in range(5):
             open(location + f"klasa{klasa}", 'w')
@@ -586,6 +642,9 @@ def main():
     selected = 0
 
     while True:
+        print("""
+    Menu główne
+              """)
         show_menu(options=options, selected=selected)
         key = keyboard.read_event().name
 

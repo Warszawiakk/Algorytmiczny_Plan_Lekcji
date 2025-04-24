@@ -1,0 +1,76 @@
+{
+    "subjects": [
+        {
+            "name": "Chemia",
+            "hours": "1"
+        },
+        {
+            "name": "Fizyka",
+            "hours": 2
+        },
+        {
+            "name": "Geografia",
+            "hours": 1
+        },
+        {
+            "name": "GW",
+            "hours": 1
+        },
+        {
+            "name": "Historia",
+            "hours": 1
+        },
+        {
+            "name": "JA",
+            "hours": 3
+        },
+        {
+            "name": "JAZ",
+            "hours": 1
+        },
+        {
+            "name": "JC",
+            "hours": 2
+        },
+        {
+            "name": "Second_JON",
+            "hours": 1
+        },
+        {
+            "name": "JP",
+            "hours": 3
+        },
+        {
+            "name": "Matematyka",
+            "hours": 4
+        },
+        {
+            "name": "Pam(a)",
+            "hours": 1
+        },
+        {
+            "name": "Pps",
+            "hours": 2
+        },
+        {
+            "name": "POB",
+            "hours": 4
+        },
+        {
+            "name": "TIDA4",
+            "hours": 2
+        },
+        {
+            "name": "WOS",
+            "hours": 1
+        },
+        {
+            "name": "WF",
+            "hours": 2
+        },
+        {
+            "name": "Zaw",
+            "hours": 4
+        }
+    ]
+}

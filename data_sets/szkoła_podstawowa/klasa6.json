@@ -1,0 +1,56 @@
+{
+    "subjects": [
+        {
+            "name": "JP",
+            "hours": 5
+        },
+        {
+            "name": "JON",
+            "hours": 3
+        },
+        {
+            "name": "Muzyka",
+            "hours": 1
+        },
+        {
+            "name": "Plastyka",
+            "hours": 1
+        },
+        {
+            "name": "Historia",
+            "hours": 2
+        },
+        {
+            "name": "Geografia",
+            "hours": 1
+        },
+        {
+            "name": "Biologia",
+            "hours": 1
+        },
+        {
+            "name": "Matematyka",
+            "hours": 4
+        },
+        {
+            "name": "Informatyka",
+            "hours": 1
+        },
+        {
+            "name": "Technika",
+            "hours": 1
+        },
+        {
+            "name": "WF",
+            "hours": 4
+        },
+        {
+            "name": "GW",
+            "hours": 1
+        },
+        {
+            "name": "Religia/Etyka",
+            "hours": 0
+        }
+    ]
+}
