@@ -44,15 +44,15 @@ class App(tk.Tk):
         label = tk.Label(self, text="Zarządzanie presetami", font=("Arial", 16))
         label.pack(pady=10)
 
-        # Add a button for creating a new preset
         new_preset_button = tk.Button(self, text="Stwórz nowy preset", width=40, command=self.initialize_new_preset)
         new_preset_button.pack(pady=5)
 
-        # Add a button for removing a preset
         remove_preset_button = tk.Button(self, text="Usuń preset", width=40, command=self.remove_preset)
         remove_preset_button.pack(pady=5)
+        
+        rename_preset_button = tk.Button(self, text="Zmień nazwę presetu", width=40, command=self.rename_preset)
+        rename_preset_button.pack(pady=5)
 
-        # Add a back button
         back_button = tk.Button(self, text="Powrót", width=40, command=self.main_menu)
         back_button.pack(pady=10)
 
@@ -62,14 +62,12 @@ class App(tk.Tk):
         label = tk.Label(self, text="Usuń preset - wybierz typ szkoły", font=("Arial", 16))
         label.pack(pady=10)
 
-        # Define school types and their corresponding directories
         school_types = {
             "Podstawowa": "szkoła_podstawowa",
             "Liceum": "szkoła_średnia/user_presets/liceum",
             "Technikum": "szkoła_średnia/user_presets/technikum"
         }
 
-        # Create buttons for each school type
         for school_name, school_folder in school_types.items():
             tk.Button(
                 self,
@@ -78,7 +76,6 @@ class App(tk.Tk):
                 command=lambda folder=school_folder: self.select_preset_to_remove(folder)
             ).pack(pady=5)
 
-        # Add a back button
         back_button = tk.Button(self, text="Powrót", width=40, command=self.preset_manager)
         back_button.pack(pady=10)
 
@@ -108,7 +105,6 @@ class App(tk.Tk):
                 command=lambda p=preset: self.confirm_remove_preset(presets_path, p)
             ).pack(pady=5)
 
-        # Add a back button
         back_button = tk.Button(self, text="Powrót", width=40, command=self.remove_preset)
         back_button.pack(pady=10)
 
@@ -117,13 +113,84 @@ class App(tk.Tk):
         if confirm:
             preset_path = os.path.join(presets_path, preset)
             try:
-                # Remove the preset directory and its contents
                 import shutil
                 shutil.rmtree(preset_path)
                 messagebox.showinfo("Sukces", f"Preset '{preset}' został usunięty.")
             except Exception as e:
                 messagebox.showerror("Błąd", f"Nie udało się usunąć presetu: {e}")
         self.remove_preset()
+        
+    def rename_preset(self):
+        self.clear_window()
+
+        label = tk.Label(self, text="Zmień nazwę presetu - wybierz typ szkoły", font=("Arial", 16))
+        label.pack(pady=10)
+
+        school_types = {
+            "Podstawowa": "szkoła_podstawowa",
+            "Liceum": "szkoła_średnia/user_presets/liceum",
+            "Technikum": "szkoła_średnia/user_presets/technikum"
+        }
+
+        for school_name, school_folder in school_types.items():
+            tk.Button(
+                self,
+                text=school_name,
+                width=40,
+                command=lambda folder=school_folder: self.select_preset_to_rename(folder)
+            ).pack(pady=5)
+
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.preset_manager)
+        back_button.pack(pady=10)
+
+    def select_preset_to_rename(self, school_folder):
+        self.clear_window()
+
+        presets_path = os.path.join("data_sets", school_folder)
+        if not os.path.exists(presets_path):
+            messagebox.showwarning("Brak danych", f"Brak katalogu dla {school_folder}.")
+            self.rename_preset()
+            return
+
+        presets = os.listdir(presets_path)
+        if not presets:
+            messagebox.showwarning("Brak danych", f"Brak presetów w katalogu {school_folder}.")
+            self.rename_preset()
+            return
+
+        label = tk.Label(self, text=f"Wybierz preset do zmiany nazwy z {school_folder}", font=("Arial", 14))
+        label.pack(pady=10)
+
+        for preset in presets:
+            tk.Button(
+                self,
+                text=preset,
+                width=40,
+                command=lambda p=preset: self.confirm_rename_preset(presets_path, p)
+            ).pack(pady=5)
+
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.rename_preset)
+        back_button.pack(pady=10)
+
+    def confirm_rename_preset(self, presets_path, preset):
+        new_name = simpledialog.askstring("Zmień nazwę presetu", f"Podaj nową nazwę dla presetu '{preset}':")
+        if not new_name:
+            return
+
+        old_path = os.path.join(presets_path, preset)
+        new_path = os.path.join(presets_path, new_name)
+
+        if os.path.exists(new_path):
+            messagebox.showerror("Błąd", "Preset o tej nazwie już istnieje.")
+            return
+
+        try:
+            os.rename(old_path, new_path)
+            messagebox.showinfo("Sukces", f"Preset '{preset}' został przemianowany na '{new_name}'.")
+        except Exception as e:
+            messagebox.showerror("Błąd", f"Nie udało się zmienić nazwy presetu: {e}")
+
+        self.rename_preset()
 
     def initialize_new_preset(self):
         self.clear_window()
@@ -298,7 +365,7 @@ class App(tk.Tk):
         options = [
             ("Dodaj nauczyciela", self.add_teacher),
             ("Modyfikuj nauczyciela", self.modify_teacher),
-            ("Usuń nauczyciela", lambda: messagebox.showinfo("TODO", "Usuwanie nauczyciela jeszcze niezaimplementowane")),
+            ("Usuń nauczyciela", self.remove_teacher),
             ("Powrót", self.preset_editor)
         ]
 
@@ -381,7 +448,92 @@ class App(tk.Tk):
             json.dump(data, f, ensure_ascii=False, indent=4)
             f.truncate()
 
-        messagebox.showinfo("Sukces", f"Dodano nauczyciela {name} {surname}")
+        messagebox.showinfo("Sukces", f"Dodano nauczyciela {name} {surname}")    
+
+    def remove_teacher(self):
+        if not os.path.exists(self.working_directory) or "user_presets" not in self.working_directory:
+            messagebox.showwarning("Brak presetu", "Najpierw wybierz preset użytkownika.")
+            return
+
+        path = os.path.join(self.working_directory, "teachers.json")
+        if not os.path.exists(path):
+            messagebox.showerror("Błąd", "Plik teachers.json nie istnieje")
+            return
+
+        with open(path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            teachers = data.get("teachers", [])
+            if not teachers:
+                messagebox.showwarning("Brak danych", "Brak nauczycieli do usunięcia")
+                return
+
+        self.clear_window()
+        label = tk.Label(self, text="Usuń nauczyciela - wybierz kryterium", font=("Arial", 16))
+        label.pack(pady=10)
+
+        # Buttons for filtering options
+        tk.Button(self, text="Usuń po ID", width=40, command=lambda: self.filter_teachers(teachers, "id")).pack(pady=5)
+        tk.Button(self, text="Usuń po imieniu", width=40, command=lambda: self.filter_teachers(teachers, "name")).pack(pady=5)
+        tk.Button(self, text="Usuń po nazwisku", width=40, command=lambda: self.filter_teachers(teachers, "surname")).pack(pady=5)
+        tk.Button(self, text="Usuń po przedmiocie", width=40, command=lambda: self.filter_teachers(teachers, "subject")).pack(pady=5)
+
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.edit_teachers)
+        back_button.pack(pady=10)
+
+    def filter_teachers(self, teachers, filter_type):
+        self.clear_window()
+
+        label = tk.Label(self, text=f"Usuń nauczyciela - filtruj po {filter_type}", font=("Arial", 16))
+        label.pack(pady=10)
+
+        # Ask for the filter value
+        filter_value = simpledialog.askstring("Filtruj", f"Podaj wartość dla {filter_type}:")
+        if not filter_value:
+            self.remove_teacher()
+            return
+
+        # Filter teachers based on the selected filter type
+        if filter_type == "id":
+            filtered_teachers = [t for t in teachers if str(t["id"]) == filter_value]
+        elif filter_type == "name":
+            filtered_teachers = [t for t in teachers if t["name"].lower() == filter_value.lower()]
+        elif filter_type == "surname":
+            filtered_teachers = [t for t in teachers if t["surname"].lower() == filter_value.lower()]
+        elif filter_type == "subject":
+            filtered_teachers = [t for t in teachers if filter_value.lower() in [s.lower() for s in t["subjects"]]]
+        else:
+            filtered_teachers = []
+
+        if not filtered_teachers:
+            messagebox.showwarning("Brak wyników", "Nie znaleziono nauczycieli spełniających kryteria")
+            self.remove_teacher()
+            return
+
+        # Display matching teachers
+        for teacher in filtered_teachers:
+            teacher_info = f"ID: {teacher['id']}, Imię: {teacher['name']}, Nazwisko: {teacher['surname']}, Przedmioty: {', '.join(teacher['subjects'])}"
+            tk.Button(
+                self,
+                text=teacher_info,
+                width=60,
+                command=lambda t=teacher: self.confirm_remove_teacher(teachers, t)
+            ).pack(pady=5)
+
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.remove_teacher)
+        back_button.pack(pady=10)
+
+    def confirm_remove_teacher(self, teachers, teacher):
+        confirm = messagebox.askyesno(
+            "Potwierdzenie",
+            f"Czy na pewno chcesz usunąć nauczyciela?\n\nID: {teacher['id']}\nImię: {teacher['name']}\nNazwisko: {teacher['surname']}\nPrzedmioty: {', '.join(teacher['subjects'])}"
+        )
+        if confirm:
+            teachers.remove(teacher)
+            path = os.path.join(self.working_directory, "teachers.json")
+            with open(path, 'w', encoding='utf-8') as f:
+                json.dump({"teachers": teachers}, f, ensure_ascii=False, indent=4)
+            messagebox.showinfo("Sukces", "Nauczyciel został usunięty")
+        self.remove_teacher()
 
 if __name__ == "__main__":
     app = App()
