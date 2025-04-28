@@ -9,7 +9,7 @@ class App(tk.Tk):
         self.title("Algorytmiczny Układacz Planu")
         self.geometry("800x300")
         self.iconbitmap("icon.ico")
-        self.working_directory = "data_sets/szkoła_średnia/user_presets/technikum/technischools"
+        self.working_directory = "data_sets/szkoła_średnia/user_presets/"
 
         self.main_menu()
 
@@ -64,7 +64,7 @@ class App(tk.Tk):
         final_path = os.path.join(directory, name)
         try:
             os.makedirs(final_path)
-            for i in range(max_class):
+            for i in range(1, max_class + 1):
                 open(os.path.join(final_path, f"klasa{i}.json"), 'w').close()
             open(os.path.join(final_path, "teacher_availability.json"), 'w').close()
             open(os.path.join(final_path, "classes.json"), 'w').close()
@@ -74,63 +74,117 @@ class App(tk.Tk):
             messagebox.showerror("Błąd", "Preset już istnieje.")
 
         self.main_menu()
-
+        
+    def edit_class_year(self):
+        self.clear_window()
+        label = tk.Label(self, text="Edytor roczników - wybierz akcję")
+        label.pack(pady=10)
+        options = [
+            ("Powrót", self.preset_editor),
+            ("Edytuj wymiar godzinowy przedmiotów rocznika", self.edit_class_year_hours),
+            ("Edytuj przedmioty dla rocznika")
+        ]
+        for (text, command) in options:
+            tk.Button(self, text=text, width=40, command=command).pack(pady=4)
+    
+    def edit_class_year_hours(self):
+        pass  # Placeholder for future implementation
+    
+    def edit_class_year_subjects(self):
+        pass # Placeholder for future implementation
+        
+        
     def preset_editor(self):
         self.clear_window()
         label = tk.Label(self, text="Edytor presetów - wybierz akcję")
         label.pack(pady=10)
+        
+        select_preset_button = tk.Button(self, text="Wybierz preset", width=40, command=self.select_preset)
+        select_preset_button.pack(pady=4)
+            
+        self.edit_classes_button = tk.Button(self, text="Edytuj klasy", width=40, command=self.edit_classes)
+        self.edit_years_button = tk.Button(self, text="Edytuj roczniki", width=40, command=self.edit_class_year)
+        self.edit_availability_button = tk.Button(self, text="Edytuj dostępność nauczycieli", width=40, command=self.edit_availability)
+        self.edit_teachers_button = tk.Button(self, text="Edytuj nauczycieli", width=40, command=self.edit_teachers)
 
-        options = [
-            ("Wybierz preset", self.select_preset),
-            ("Edytuj klasy", self.edit_classes),
-            ("Edytuj dostępność nauczycieli", self.edit_availability),
-            ("Edytuj nauczycieli", self.edit_teachers),
-            ("Powrót", self.main_menu)
-        ]
-
-        for (text, command) in options:
-            tk.Button(self, text=text, width=40, command=command).pack(pady=4)
+        self.edit_classes_button.pack(pady=4)
+        self.edit_years_button.pack(pady=4)
+        self.edit_availability_button.pack(pady=4)
+        self.edit_teachers_button.pack(pady=4)
+        
+        if self.working_directory == "data_sets/szkoła_średnia/user_presets/":
+            self.edit_classes_button.config(state="disabled")
+            self.edit_years_button.config(state="disabled")
+            self.edit_availability_button.config(state="disabled")
+            self.edit_teachers_button.config(state="disabled")
+        else:
+            self.edit_classes_button.config(state="normal")
+            self.edit_years_button.config(state="normal")
+            self.edit_availability_button.config(state="normal")
+            self.edit_teachers_button.config(state="normal")
+        
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.main_menu)
+        back_button.pack(pady=10)
 
     def select_preset(self):
-        # Ask the user to choose the school type
-        school_type = simpledialog.askstring(
-            "Wybierz typ szkoły",
-            "Wybierz typ szkoły:\n1: Liceum\n2: Technikum\n3: Szkoła Zawodowa"
-        )
+        self.clear_window()
 
-        if school_type == "1":
-            school_folder = "liceum"
-        elif school_type == "2":
-            school_folder = "technikum"
-        elif school_type == "3":
-            school_folder = "szkoła_zawodowa"
-        else:
-            messagebox.showerror("Błąd", "Nieprawidłowy wybór typu szkoły.")
-            return
+        label = tk.Label(self, text="Wybierz typ szkoły", font=("Arial", 16))
+        label.pack(pady=10)
 
-        # Update the presets directory based on the chosen school type
+        school_types = {
+            "Liceum": "liceum",
+            "Technikum": "technikum",
+            "Szkoła Zawodowa": "szkoła_zawodowa"
+        }
+
+        for school_name, school_folder in school_types.items():
+            tk.Button(
+                self,
+                text=school_name,
+                width=40,
+                command=lambda folder=school_folder: self.display_presets(folder)
+            ).pack(pady=5)
+        
+        
+
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.preset_editor)
+        back_button.pack(pady=10)
+
+    def display_presets(self, school_folder):
+        self.clear_window()
+
         presets_path = os.path.join("data_sets/szkoła_średnia/user_presets", school_folder)
         if not os.path.exists(presets_path):
             messagebox.showwarning("Brak danych", f"Brak katalogu dla {school_folder}.")
+            self.preset_editor()
             return
 
-        # List presets in the selected school type directory
         presets = os.listdir(presets_path)
         if not presets:
             messagebox.showwarning("Brak danych", f"Brak presetów w katalogu {school_folder}.")
+            self.preset_editor()
             return
 
-        # Ask the user to select a preset
-        selected = simpledialog.askstring(
-            "Wybierz preset",
-            f"Dostępne w {school_folder}: {', '.join(presets)}\nWpisz nazwę:"
-        )
+        label = tk.Label(self, text=f"Wybierz preset z {school_folder}", font=("Arial", 14))
+        label.pack(pady=10)
 
-        if selected and selected in presets:
-            self.working_directory = os.path.join(presets_path, selected)
-            messagebox.showinfo("Wybrano", f"Aktywny katalog: {self.working_directory}")
-        else:
-            messagebox.showerror("Błąd", "Nieprawidłowa nazwa presetu.")
+        for preset in presets:
+            tk.Button(
+                self,
+                text=preset,
+                width=40,
+                command=lambda p=preset: self.set_working_directory(presets_path, p)
+            ).pack(pady=5)
+
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.preset_editor)
+        back_button.pack(pady=10)
+
+    def set_working_directory(self, presets_path, preset):
+        self.working_directory = os.path.join(presets_path, preset)
+        messagebox.showinfo("Wybrano", f"Aktywny katalog: {self.working_directory}")
+
+        self.main_menu()
      
     def edit_availability(self):
         self.clear_window()
