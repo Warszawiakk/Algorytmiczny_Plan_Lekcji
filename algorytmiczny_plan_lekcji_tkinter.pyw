@@ -25,7 +25,7 @@ class App(tk.Tk):
 
         btn1 = tk.Button(self, text="Oblicz plan", width=30, height=2, command=self.calculate_plan)
         btn2 = tk.Button(self, text="Edytuj dane", width=30, height=2, command=self.preset_editor)
-        btn3 = tk.Button(self, text="Stwórz nowy preset", width=30, height=2, command=self.initialize_new_preset)
+        btn3 = tk.Button(self, text="Zarządzaj presetami", width=30, height=2, command=self.preset_manager)  # New button
         btn4 = tk.Button(self, text="Exit", width=30, height=2, command=self.quit)
 
         for btn in [btn1, btn2, btn3, btn4]:
@@ -38,30 +38,123 @@ class App(tk.Tk):
         back = tk.Button(self, text="Wstecz", command=self.main_menu)
         back.pack()
 
+    def preset_manager(self):
+        self.clear_window()
+
+        label = tk.Label(self, text="Zarządzanie presetami", font=("Arial", 16))
+        label.pack(pady=10)
+
+        # Add a button for creating a new preset
+        new_preset_button = tk.Button(self, text="Stwórz nowy preset", width=40, command=self.initialize_new_preset)
+        new_preset_button.pack(pady=5)
+
+        # Add a button for removing a preset
+        remove_preset_button = tk.Button(self, text="Usuń preset", width=40, command=self.remove_preset)
+        remove_preset_button.pack(pady=5)
+
+        # Add a back button
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.main_menu)
+        back_button.pack(pady=10)
+
+    def remove_preset(self):
+        self.clear_window()
+
+        label = tk.Label(self, text="Usuń preset - wybierz typ szkoły", font=("Arial", 16))
+        label.pack(pady=10)
+
+        # Define school types and their corresponding directories
+        school_types = {
+            "Podstawowa": "szkoła_podstawowa",
+            "Liceum": "szkoła_średnia/user_presets/liceum",
+            "Technikum": "szkoła_średnia/user_presets/technikum"
+        }
+
+        # Create buttons for each school type
+        for school_name, school_folder in school_types.items():
+            tk.Button(
+                self,
+                text=school_name,
+                width=40,
+                command=lambda folder=school_folder: self.select_preset_to_remove(folder)
+            ).pack(pady=5)
+
+        # Add a back button
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.preset_manager)
+        back_button.pack(pady=10)
+
+    def select_preset_to_remove(self, school_folder):
+        self.clear_window()
+
+        presets_path = os.path.join("data_sets", school_folder)
+        if not os.path.exists(presets_path):
+            messagebox.showwarning("Brak danych", f"Brak katalogu dla {school_folder}.")
+            self.remove_preset()
+            return
+
+        presets = os.listdir(presets_path)
+        if not presets:
+            messagebox.showwarning("Brak danych", f"Brak presetów w katalogu {school_folder}.")
+            self.remove_preset()
+            return
+
+        label = tk.Label(self, text=f"Wybierz preset do usunięcia z {school_folder}", font=("Arial", 14))
+        label.pack(pady=10)
+
+        for preset in presets:
+            tk.Button(
+                self,
+                text=preset,
+                width=40,
+                command=lambda p=preset: self.confirm_remove_preset(presets_path, p)
+            ).pack(pady=5)
+
+        # Add a back button
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.remove_preset)
+        back_button.pack(pady=10)
+
+    def confirm_remove_preset(self, presets_path, preset):
+        confirm = messagebox.askyesno("Potwierdzenie", f"Czy na pewno chcesz usunąć preset '{preset}'?")
+        if confirm:
+            preset_path = os.path.join(presets_path, preset)
+            try:
+                # Remove the preset directory and its contents
+                import shutil
+                shutil.rmtree(preset_path)
+                messagebox.showinfo("Sukces", f"Preset '{preset}' został usunięty.")
+            except Exception as e:
+                messagebox.showerror("Błąd", f"Nie udało się usunąć presetu: {e}")
+        self.remove_preset()
+
     def initialize_new_preset(self):
         self.clear_window()
+
+        label = tk.Label(self, text="Stwórz nowy preset - wybierz typ szkoły", font=("Arial", 16))
+        label.pack(pady=10)
+
+        school_types = {
+            "Podstawowa": ("szkoła_podstawowa", 8),
+            "Liceum": ("szkoła_średnia/user_presets/liceum", 4),
+            "Technikum": ("szkoła_średnia/user_presets/technikum", 5)
+        }
+
+        for school_name, (directory, max_class) in school_types.items():
+            tk.Button(
+                self,
+                text=school_name,
+                width=40,
+                command=lambda d=directory, m=max_class: self.create_preset(d, m)
+            ).pack(pady=5)
+
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.preset_manager)
+        back_button.pack(pady=10)
+
+    def create_preset(self, directory, max_class):
         name = simpledialog.askstring("Nazwa presetu", "Podaj nazwę nowego presetu:")
         if not name:
-            self.main_menu()
+            self.preset_manager()
             return
 
-        school_type = simpledialog.askinteger("Typ szkoły", "Wybierz typ szkoły:\n1: Podstawowa\n2: Liceum\n3: Technikum", minvalue=1, maxvalue=3)
-        if not school_type:
-            self.main_menu()
-            return
-
-        directory = "data_sets/"
-        if school_type == 1:
-            directory += "szkoła_podstawowa"
-            max_class = 8
-        elif school_type == 2:
-            directory += "szkoła_średnia/user_presets/liceum"
-            max_class = 4
-        elif school_type == 3:
-            directory += "szkoła_średnia/user_presets/technikum"
-            max_class = 5
-
-        final_path = os.path.join(directory, name)
+        final_path = os.path.join("data_sets", directory, name)
         try:
             os.makedirs(final_path)
             for i in range(1, max_class + 1):
@@ -73,25 +166,29 @@ class App(tk.Tk):
         except FileExistsError:
             messagebox.showerror("Błąd", "Preset już istnieje.")
 
-        self.main_menu()
+        self.preset_manager()
         
     def edit_class_year(self):
         self.clear_window()
         label = tk.Label(self, text="Edytor roczników - wybierz akcję")
         label.pack(pady=10)
         options = [
-            ("Powrót", self.preset_editor),
             ("Edytuj wymiar godzinowy przedmiotów rocznika", self.edit_class_year_hours),
-            ("Edytuj przedmioty dla rocznika")
+            ("Edytuj przedmioty dla rocznika", self.edit_class_year_subjects),
+            ("Dodaj rocznik", self.add_class_year),
+            ("Powrót", self.preset_editor)
         ]
         for (text, command) in options:
             tk.Button(self, text=text, width=40, command=command).pack(pady=4)
     
     def edit_class_year_hours(self):
-        pass  # Placeholder for future implementation
-    
+        self.clear_window()
+        
     def edit_class_year_subjects(self):
-        pass # Placeholder for future implementation
+        self.clear_window()
+    
+    def add_class_year(self):
+        self.clear_window()
         
         
     def preset_editor(self):
