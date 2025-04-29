@@ -25,7 +25,7 @@ class App(tk.Tk):
 
         btn1 = tk.Button(self, text="Oblicz plan", width=30, height=2, command=self.calculate_plan)
         btn2 = tk.Button(self, text="Edytuj dane", width=30, height=2, command=self.preset_editor)
-        btn3 = tk.Button(self, text="Zarządzaj presetami", width=30, height=2, command=self.preset_manager)  # New button
+        btn3 = tk.Button(self, text="Zarządzaj zestawami danych", width=30, height=2, command=self.preset_manager)
         btn4 = tk.Button(self, text="Exit", width=30, height=2, command=self.quit)
 
         for btn in [btn1, btn2, btn3, btn4]:
@@ -41,7 +41,7 @@ class App(tk.Tk):
     def preset_manager(self):
         self.clear_window()
 
-        label = tk.Label(self, text="Zarządzanie presetami", font=("Arial", 16))
+        label = tk.Label(self, text="Zarządzanie zestawami danych", font=("Arial", 16))
         label.pack(pady=10)
 
         new_preset_button = tk.Button(self, text="Stwórz nowy preset", width=40, command=self.initialize_new_preset)
@@ -50,7 +50,7 @@ class App(tk.Tk):
         remove_preset_button = tk.Button(self, text="Usuń preset", width=40, command=self.remove_preset)
         remove_preset_button.pack(pady=5)
         
-        rename_preset_button = tk.Button(self, text="Zmień nazwę presetu", width=40, command=self.rename_preset)
+        rename_preset_button = tk.Button(self, text="Zmień nazwę zestawu danych", width=40, command=self.rename_preset)
         rename_preset_button.pack(pady=5)
 
         back_button = tk.Button(self, text="Powrót", width=40, command=self.main_menu)
@@ -59,7 +59,7 @@ class App(tk.Tk):
     def remove_preset(self):
         self.clear_window()
 
-        label = tk.Label(self, text="Usuń preset - wybierz typ szkoły", font=("Arial", 16))
+        label = tk.Label(self, text="Usuń zestaw danych - wybierz typ szkoły", font=("Arial", 16))
         label.pack(pady=10)
 
         school_types = {
@@ -90,11 +90,11 @@ class App(tk.Tk):
 
         presets = os.listdir(presets_path)
         if not presets:
-            messagebox.showwarning("Brak danych", f"Brak presetów w katalogu {school_folder}.")
+            messagebox.showwarning("Brak danych", f"Brak zestawów danych w katalogu {school_folder}.")
             self.remove_preset()
             return
 
-        label = tk.Label(self, text=f"Wybierz preset do usunięcia z {school_folder}", font=("Arial", 14))
+        label = tk.Label(self, text=f"Wybierz zestaw danych do usunięcia z {school_folder}", font=("Arial", 14))
         label.pack(pady=10)
 
         for preset in presets:
@@ -109,21 +109,21 @@ class App(tk.Tk):
         back_button.pack(pady=10)
 
     def confirm_remove_preset(self, presets_path, preset):
-        confirm = messagebox.askyesno("Potwierdzenie", f"Czy na pewno chcesz usunąć preset '{preset}'?")
+        confirm = messagebox.askyesno("Potwierdzenie", f"Czy na pewno chcesz usunąć zestaw danych '{preset}'?")
         if confirm:
             preset_path = os.path.join(presets_path, preset)
             try:
                 import shutil
                 shutil.rmtree(preset_path)
-                messagebox.showinfo("Sukces", f"Preset '{preset}' został usunięty.")
+                messagebox.showinfo("Sukces", f"zestaw danych '{preset}' został usunięty.")
             except Exception as e:
-                messagebox.showerror("Błąd", f"Nie udało się usunąć presetu: {e}")
+                messagebox.showerror("Błąd", f"Nie udało się usunąć zestawu danych: {e}")
         self.remove_preset()
         
     def rename_preset(self):
         self.clear_window()
 
-        label = tk.Label(self, text="Zmień nazwę presetu - wybierz typ szkoły", font=("Arial", 16))
+        label = tk.Label(self, text="Zmień nazwę zestawu danych - wybierz typ szkoły", font=("Arial", 16))
         label.pack(pady=10)
 
         school_types = {
@@ -154,11 +154,11 @@ class App(tk.Tk):
 
         presets = os.listdir(presets_path)
         if not presets:
-            messagebox.showwarning("Brak danych", f"Brak presetów w katalogu {school_folder}.")
+            messagebox.showwarning("Brak danych", f"Brak zestawów danych w katalogu {school_folder}.")
             self.rename_preset()
             return
 
-        label = tk.Label(self, text=f"Wybierz preset do zmiany nazwy z {school_folder}", font=("Arial", 14))
+        label = tk.Label(self, text=f"Wybierz zestaw danych do zmiany nazwy z {school_folder}", font=("Arial", 14))
         label.pack(pady=10)
 
         for preset in presets:
@@ -173,7 +173,7 @@ class App(tk.Tk):
         back_button.pack(pady=10)
 
     def confirm_rename_preset(self, presets_path, preset):
-        new_name = simpledialog.askstring("Zmień nazwę presetu", f"Podaj nową nazwę dla presetu '{preset}':")
+        new_name = simpledialog.askstring("Zmień nazwę zestawu danych", f"Podaj nową nazwę dla zestawu danych '{preset}':")
         if not new_name:
             return
 
@@ -188,14 +188,14 @@ class App(tk.Tk):
             os.rename(old_path, new_path)
             messagebox.showinfo("Sukces", f"Preset '{preset}' został przemianowany na '{new_name}'.")
         except Exception as e:
-            messagebox.showerror("Błąd", f"Nie udało się zmienić nazwy presetu: {e}")
+            messagebox.showerror("Błąd", f"Nie udało się zmienić nazwy zestawu danych: {e}")
 
         self.rename_preset()
 
     def initialize_new_preset(self):
         self.clear_window()
 
-        label = tk.Label(self, text="Stwórz nowy preset - wybierz typ szkoły", font=("Arial", 16))
+        label = tk.Label(self, text="Stwórz nowy zestaw danych - wybierz typ szkoły", font=("Arial", 16))
         label.pack(pady=10)
 
         school_types = {
@@ -216,7 +216,7 @@ class App(tk.Tk):
         back_button.pack(pady=10)
 
     def create_preset(self, directory, max_class):
-        name = simpledialog.askstring("Nazwa presetu", "Podaj nazwę nowego presetu:")
+        name = simpledialog.askstring("Nazwa zestawu danych", "Podaj nazwę nowego zestawu danych:")
         if not name:
             self.preset_manager()
             return
@@ -229,9 +229,9 @@ class App(tk.Tk):
             open(os.path.join(final_path, "teacher_availability.json"), 'w').close()
             open(os.path.join(final_path, "classes.json"), 'w').close()
             open(os.path.join(final_path, "teachers.json"), 'w').close()
-            messagebox.showinfo("Sukces", "Preset został utworzony.")
+            messagebox.showinfo("Sukces", "Zestaw danych został utworzony.")
         except FileExistsError:
-            messagebox.showerror("Błąd", "Preset już istnieje.")
+            messagebox.showerror("Błąd", "Zestaw danych już istnieje.")
 
         self.preset_manager()
         
@@ -240,6 +240,7 @@ class App(tk.Tk):
         label = tk.Label(self, text="Edytor roczników - wybierz akcję")
         label.pack(pady=10)
         options = [
+            ("Wybierz rocznik", self.select_class_year),
             ("Edytuj wymiar godzinowy przedmiotów rocznika", self.edit_class_year_hours),
             ("Edytuj przedmioty dla rocznika", self.edit_class_year_subjects),
             ("Dodaj rocznik", self.add_class_year),
@@ -248,22 +249,52 @@ class App(tk.Tk):
         for (text, command) in options:
             tk.Button(self, text=text, width=40, command=command).pack(pady=4)
     
+    def select_class_year(self):
+        self.clear_window()
+        label = tk.Label(self, text="Wybierz rocznik - funkcja jeszcze niezaimplementowana")
+        label.pack(pady=50)
+        back = tk.Button(self, text="Wstecz", command=self.edit_class_year)
+        back.pack()
+    
     def edit_class_year_hours(self):
         self.clear_window()
+        label = tk.Label(self, text="Edytor wymiaru godzinowego przedmiotów rocznika")
+        label.pack(pady=20)
+        
+        options = [
+            ("Powrót", self.edit_class_year)
+        ]
+        
+        for (text, command) in options:
+            tk.Button(self, text=text, width=40, command=command).pack(pady=4)
         
     def edit_class_year_subjects(self):
         self.clear_window()
+        label = tk.Label(self, text="Edytor przedmiotów dla rocznika")
+        label.pack(pady=20)
+        
+        options = [
+            ("Powrót", self.edit_class_year)
+        ]
+        
+        for (text, command) in options:
+            tk.Button(self, text=text, width=40, command=command).pack(pady=4)
     
     def add_class_year(self):
         self.clear_window()
+        options = [
+            ("Powrót", self.edit_class_year)
+        ]
         
+        for (text, command) in options:
+            tk.Button(self, text=text, width=40, command=command).pack(pady=4)
         
     def preset_editor(self):
         self.clear_window()
-        label = tk.Label(self, text="Edytor presetów - wybierz akcję")
+        label = tk.Label(self, text="Edytor zestawów danych - wybierz akcję")
         label.pack(pady=10)
         
-        select_preset_button = tk.Button(self, text="Wybierz preset", width=40, command=self.select_preset)
+        select_preset_button = tk.Button(self, text="Wybierz zestaw danych", width=40, command=self.select_preset)
         select_preset_button.pack(pady=4)
             
         self.edit_classes_button = tk.Button(self, text="Edytuj klasy", width=40, command=self.edit_classes)
@@ -326,11 +357,11 @@ class App(tk.Tk):
 
         presets = os.listdir(presets_path)
         if not presets:
-            messagebox.showwarning("Brak danych", f"Brak presetów w katalogu {school_folder}.")
+            messagebox.showwarning("Brak danych", f"Brak zestawów danych w katalogu {school_folder}.")
             self.preset_editor()
             return
 
-        label = tk.Label(self, text=f"Wybierz preset z {school_folder}", font=("Arial", 14))
+        label = tk.Label(self, text=f"Wybierz zestaw danych z {school_folder}", font=("Arial", 14))
         label.pack(pady=10)
 
         for preset in presets:
@@ -417,7 +448,7 @@ class App(tk.Tk):
 
     def add_teacher(self):
         if not os.path.exists(self.working_directory) or "user_presets" not in self.working_directory:
-            messagebox.showwarning("Brak presetu", "Najpierw wybierz preset użytkownika.")
+            messagebox.showwarning("Brak zestawu danych", "Najpierw wybierz zestaw danych.")
             return
 
         name = simpledialog.askstring("Dodaj nauczyciela", "Imię:")
@@ -452,7 +483,7 @@ class App(tk.Tk):
 
     def remove_teacher(self):
         if not os.path.exists(self.working_directory) or "user_presets" not in self.working_directory:
-            messagebox.showwarning("Brak presetu", "Najpierw wybierz preset użytkownika.")
+            messagebox.showwarning("Brak zestawu danych", "Najpierw wybierz zestaw danych użytkownika.")
             return
 
         path = os.path.join(self.working_directory, "teachers.json")
