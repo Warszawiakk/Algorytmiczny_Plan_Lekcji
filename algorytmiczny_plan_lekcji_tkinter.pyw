@@ -23,7 +23,16 @@ class App(tk.Tk):
         title = tk.Label(self, text="ALGORYTMICZNY UKŁADACZ PLANU alpha 0.1", font=("Arial", 16, "bold"))
         title.pack(pady=20)
 
-        btn1 = tk.Button(self, text="Oblicz plan", width=30, height=2, command=self.calculate_plan)
+        is_data_set_selected = self.working_directory != "data_sets/szkoła_średnia/user_data_sets/"
+
+        btn1 = tk.Button(
+            self,
+            text="Oblicz plan",
+            width=30,
+            height=2,
+            command=self.calculate_plan,
+            state="normal" if is_data_set_selected else "disabled"
+        )
         btn2 = tk.Button(self, text="Edytuj dane", width=30, height=2, command=self.data_set_editor)
         btn3 = tk.Button(self, text="Zarządzaj zestawami danych", width=30, height=2, command=self.data_set_manager)
         btn4 = tk.Button(self, text="Exit", width=30, height=2, command=self.quit)
@@ -34,8 +43,11 @@ class App(tk.Tk):
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     def calculate_plan(self):
         self.clear_window()
-
-        label = tk.Label(self, text="Working data_set -> " + self.working_directory, font=("Arial", 10))
+        
+        label = tk.Label(self, text="Obliczanie planu", font=("Arial", 16))
+        label.pack(pady=10)
+        
+        label = tk.Label(self, text="Working data_set -> " + self.working_directory, font=("Arial", 5))
         label.pack(pady=5)
         
         back = tk.Button(self, text="Powrót", command=self.main_menu)
@@ -44,7 +56,17 @@ class App(tk.Tk):
         set_priority_button = tk.Button(text="Ustaw priorytety przedmiotów", width=30, command=self.set_priority) # Work in progress
         set_priority_button.pack(pady=5)
         
-    
+        if not self.check_file_integrity(self.working_directory):
+            messagebox.showerror("Błąd", "Integralność plików została naruszona, nie można kontynuować.")
+            return False
+        
+        # The mighty algoritm itself \/.
+        
+        teacher_availability = json.load(open(os.path.join(self.working_directory, "teacher_availability.json"), 'r', encoding='utf-8'))
+        classes = json.load(open(os.path.join(self.working_directory, "classes.json"), 'r', encoding='utf-8'))
+        teachers = json.load(open(os.path.join(self.working_directory, "teachers.json"), 'r', encoding='utf-8'))
+        
+        
     def check_file_integrity(working_directory):
         
         required_files = [
@@ -74,7 +96,6 @@ class App(tk.Tk):
             
     def set_priority(self):
         pass # Work in progress
-        
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
