@@ -7,7 +7,7 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Algorytmiczny Układacz Planu")
-        self.geometry("800x300")
+        self.geometry("800x500")
         self.iconbitmap("icon.ico")
         self.working_directory = "data_sets/szkoła_średnia/user_data_sets/"
 
@@ -16,6 +16,28 @@ class App(tk.Tk):
     def clear_window(self):
         for widget in self.winfo_children():
             widget.destroy()
+
+    def create_scrollable_frame(self):
+        self.clear_window()
+
+        # Create a canvas and a scrollbar
+        canvas = tk.Canvas(self)
+        scrollbar = tk.Scrollbar(self, orient="vertical", command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas)
+
+        # Configure the canvas
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Pack the canvas and scrollbar
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+
+        return scrollable_frame
 
     def main_menu(self):
         self.clear_window()
@@ -39,6 +61,15 @@ class App(tk.Tk):
 
         for btn in [btn1, btn2, btn3, btn4]:
             btn.pack(pady=5)
+
+####################################
+# DO ZROBIENIA:
+# Edytowanie klas
+# Edytowanie roczników
+# Edytowanie dostępności nauczycieli
+
+
+####################################
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     def calculate_plan(self):
@@ -105,10 +136,10 @@ class App(tk.Tk):
         label = tk.Label(self, text="Zarządzanie zestawami danych", font=("Arial", 16))
         label.pack(pady=10)
 
-        new_data_set_button = tk.Button(self, text="Stwórz nowy data_set", width=40, command=self.initialize_new_data_set)
+        new_data_set_button = tk.Button(self, text="Stwórz nowy zestaw danych", width=40, command=self.initialize_new_data_set)
         new_data_set_button.pack(pady=5)
 
-        remove_data_set_button = tk.Button(self, text="Usuń data_set", width=40, command=self.remove_data_set)
+        remove_data_set_button = tk.Button(self, text="Usuń zestaw danych", width=40, command=self.remove_data_set)
         remove_data_set_button.pack(pady=5)
         
         rename_data_set_button = tk.Button(self, text="Zmień nazwę zestawu danych", width=40, command=self.rename_data_set)
@@ -138,7 +169,7 @@ class App(tk.Tk):
                 command=lambda folder=school_folder: self.select_data_set_to_remove(folder)
             ).pack(pady=5)
 
-        back_button = tk.Button(self, text="Powrót", width=40, command=self.data_set_manager)
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.remove_data_set)
         back_button.pack(pady=10)
 
     def select_data_set_to_remove(self, school_folder):
@@ -243,12 +274,12 @@ class App(tk.Tk):
         new_path = os.path.join(data_sets_path, new_name)
 
         if os.path.exists(new_path):
-            messagebox.showerror("Błąd", "data_set o tej nazwie już istnieje.")
+            messagebox.showerror("Błąd", "zestaw danych o tej nazwie już istnieje.")
             return
 
         try:
             os.rename(old_path, new_path)
-            messagebox.showinfo("Sukces", f"data_set '{data_set}' został przemianowany na '{new_name}'.")
+            messagebox.showinfo("Sukces", f"zestaw danych '{data_set}' został przemianowany na '{new_name}'.")
         except Exception as e:
             messagebox.showerror("Błąd", f"Nie udało się zmienić nazwy zestawu danych: {e}")
 
@@ -361,23 +392,23 @@ class App(tk.Tk):
             
         self.edit_classes_button = tk.Button(self, text="Edytuj klasy", width=40, command=self.edit_classes)
         self.edit_years_button = tk.Button(self, text="Edytuj roczniki", width=40, command=self.edit_class_year)
-        self.edit_availability_button = tk.Button(self, text="Edytuj dostępność nauczycieli", width=40, command=self.edit_availability)
+        self.edit_teacher_availability_button = tk.Button(self, text="Edytuj dostępność nauczycieli", width=40, command=self.edit_teacher_availability)
         self.edit_teachers_button = tk.Button(self, text="Edytuj nauczycieli", width=40, command=self.edit_teachers)
 
         self.edit_classes_button.pack(pady=4)
         self.edit_years_button.pack(pady=4)
-        self.edit_availability_button.pack(pady=4)
+        self.edit_teacher_availability_button.pack(pady=4)
         self.edit_teachers_button.pack(pady=4)
         
         if self.working_directory == "data_sets/szkoła_średnia/user_data_sets/":
             self.edit_classes_button.config(state="disabled")
             self.edit_years_button.config(state="disabled")
-            self.edit_availability_button.config(state="disabled")
+            self.edit_teacher_availability_button.config(state="disabled")
             self.edit_teachers_button.config(state="disabled")
         else:
             self.edit_classes_button.config(state="normal")
             self.edit_years_button.config(state="normal")
-            self.edit_availability_button.config(state="normal")
+            self.edit_teacher_availability_button.config(state="normal")
             self.edit_teachers_button.config(state="normal")
         
         back_button = tk.Button(self, text="Powrót", width=40, command=self.main_menu)
@@ -443,13 +474,80 @@ class App(tk.Tk):
 
         self.main_menu()
      
-    def edit_availability(self):
+    def edit_teacher_availability(self):
+        if not os.path.exists(self.working_directory) or "user_data_sets" not in self.working_directory:
+            messagebox.showwarning("Brak zestawu danych", "Najpierw wybierz zestaw danych użytkownika.")
+            return
+
+        path = os.path.join(self.working_directory, "teacher_availability.json")
+        if not os.path.exists(path):
+            messagebox.showerror("Błąd", "Plik teacher_availability.json nie istnieje")
+            return
+
+        with open(path, 'r+', encoding='utf-8') as f:
+            data = json.load(f)
+            teachers = data.get("data", [])
+            if len(teachers) <= 1:
+                messagebox.showwarning("Brak danych", "Brak dostępności nauczycieli do edycji")
+                return
+
+        scrollable_frame = self.create_scrollable_frame()
+
+        label = tk.Label(scrollable_frame, text="Edytor dostępności nauczycieli - wybierz nauczyciela", font=("Arial", 16))
+        label.pack(pady=10)
+
+        for teacher in teachers[1:]:
+            teacher_info = f"{teacher[0]} - {teacher[1]}"
+            tk.Button(
+                scrollable_frame,
+                text=teacher_info,
+                width=60,
+                command=lambda t=teacher: self.edit_availability_hours(data, t, path)
+            ).pack(pady=5)
+
+        back_button = tk.Button(scrollable_frame, text="Powrót", width=40, command=self.data_set_editor)
+        back_button.pack(pady=10)
+
+    def edit_availability_hours(self, data, teacher, path):
         self.clear_window()
-        label = tk.Label(self, text="Edytor dostępności nauczycieli - funkcja jeszcze niezaimplementowana")
-        label.pack(pady=50)
-        back = tk.Button(self, text="Wstecz", command=self.data_set_editor)
-        back.pack()
-    
+
+        label = tk.Label(self, text=f"Edytuj dostępność nauczyciela: {teacher[0]} ({teacher[1]})", font=("Arial", 16))
+        label.pack(pady=10)
+
+        days = ["Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek"]
+        day_vars = []
+
+        for i, day in enumerate(days):
+            day_label = tk.Label(self, text=day)
+            day_label.pack(pady=5)
+
+            day_var = tk.StringVar(value=teacher[i + 2])
+            day_vars.append(day_var)
+
+            day_entry = tk.Entry(self, textvariable=day_var, width=40)
+            day_entry.pack(pady=5)
+
+        save_button = tk.Button(
+            self,
+            text="Zapisz",
+            width=20,
+            command=lambda: self.save_availability(data, teacher, day_vars, path)
+        )
+        save_button.pack(pady=10)
+
+        back_button = tk.Button(self, text="Powrót", width=20, command=self.edit_teacher_availability)
+        back_button.pack(pady=10)
+
+    def save_availability(self, data, teacher, day_vars, path):
+        for i, day_var in enumerate(day_vars):
+            teacher[i + 2] = day_var.get()
+
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+
+        messagebox.showinfo("Sukces", f"Dostępność nauczyciela {teacher[0]} została zaktualizowana.")
+        self.edit_teacher_availability()
+
     def edit_teachers(self):
         self.clear_window()
         label = tk.Label(self, text="Edytor nauczycieli - wybierz akcję")
