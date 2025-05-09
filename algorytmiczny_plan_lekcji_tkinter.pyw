@@ -31,12 +31,17 @@ class App(tk.Tk):
         for btn in [btn1, btn2, btn3, btn4]:
             btn.pack(pady=5)
 
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     def calculate_plan(self):
         self.clear_window()
-        label = tk.Label(self, text="Tutaj będzie GUI do obliczania planu")
+
+        back = tk.Button(self, text="Powrót", command=self.main_menu)
+        back.place(x=10, y=10)
+
+        label = tk.Label(self, text="Working preset -> " + self.working_directory, font=("Arial", 10))
         label.pack(pady=50)
-        back = tk.Button(self, text="Wstecz", command=self.main_menu)
-        back.pack()
+
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
     def preset_manager(self):
         self.clear_window()
@@ -52,6 +57,7 @@ class App(tk.Tk):
         
         rename_preset_button = tk.Button(self, text="Zmień nazwę zestawu danych", width=40, command=self.rename_preset)
         rename_preset_button.pack(pady=5)
+
 
         back_button = tk.Button(self, text="Powrót", width=40, command=self.main_menu)
         back_button.pack(pady=10)
@@ -502,7 +508,6 @@ class App(tk.Tk):
         label = tk.Label(self, text="Usuń nauczyciela - wybierz kryterium", font=("Arial", 16))
         label.pack(pady=10)
 
-        # Buttons for filtering options
         tk.Button(self, text="Usuń po ID", width=40, command=lambda: self.filter_teachers(teachers, "id")).pack(pady=5)
         tk.Button(self, text="Usuń po imieniu", width=40, command=lambda: self.filter_teachers(teachers, "name")).pack(pady=5)
         tk.Button(self, text="Usuń po nazwisku", width=40, command=lambda: self.filter_teachers(teachers, "surname")).pack(pady=5)
@@ -517,13 +522,11 @@ class App(tk.Tk):
         label = tk.Label(self, text=f"Usuń nauczyciela - filtruj po {filter_type}", font=("Arial", 16))
         label.pack(pady=10)
 
-        # Ask for the filter value
         filter_value = simpledialog.askstring("Filtruj", f"Podaj wartość dla {filter_type}:")
         if not filter_value:
             self.remove_teacher()
             return
 
-        # Filter teachers based on the selected filter type
         if filter_type == "id":
             filtered_teachers = [t for t in teachers if str(t["id"]) == filter_value]
         elif filter_type == "name":
@@ -540,7 +543,6 @@ class App(tk.Tk):
             self.remove_teacher()
             return
 
-        # Display matching teachers
         for teacher in filtered_teachers:
             teacher_info = f"ID: {teacher['id']}, Imię: {teacher['name']}, Nazwisko: {teacher['surname']}, Przedmioty: {', '.join(teacher['subjects'])}"
             tk.Button(
