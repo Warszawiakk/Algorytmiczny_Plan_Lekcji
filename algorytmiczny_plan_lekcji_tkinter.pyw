@@ -9,7 +9,7 @@ class App(tk.Tk):
         self.title("Algorytmiczny Układacz Planu")
         self.geometry("800x300")
         self.iconbitmap("icon.ico")
-        self.working_directory = "data_sets/szkoła_średnia/user_presets/"
+        self.working_directory = "data_sets/szkoła_średnia/user_data_sets/"
 
         self.main_menu()
 
@@ -24,8 +24,8 @@ class App(tk.Tk):
         title.pack(pady=20)
 
         btn1 = tk.Button(self, text="Oblicz plan", width=30, height=2, command=self.calculate_plan)
-        btn2 = tk.Button(self, text="Edytuj dane", width=30, height=2, command=self.preset_editor)
-        btn3 = tk.Button(self, text="Zarządzaj zestawami danych", width=30, height=2, command=self.preset_manager)
+        btn2 = tk.Button(self, text="Edytuj dane", width=30, height=2, command=self.data_set_editor)
+        btn3 = tk.Button(self, text="Zarządzaj zestawami danych", width=30, height=2, command=self.data_set_manager)
         btn4 = tk.Button(self, text="Exit", width=30, height=2, command=self.quit)
 
         for btn in [btn1, btn2, btn3, btn4]:
@@ -35,34 +35,69 @@ class App(tk.Tk):
     def calculate_plan(self):
         self.clear_window()
 
+        label = tk.Label(self, text="Working data_set -> " + self.working_directory, font=("Arial", 10))
+        label.pack(pady=5)
+        
         back = tk.Button(self, text="Powrót", command=self.main_menu)
         back.place(x=10, y=10)
+        
+        set_priority_button = tk.Button(text="Ustaw priorytety przedmiotów", width=30, command=self.set_priority) # Work in progress
+        set_priority_button.pack(pady=5)
+        
+    
+    def check_file_integrity(working_directory):
+        
+        required_files = [
+            "teacher_availability.json",
+            "classes.json",
+            "teachers.json"
+        ]
 
-        label = tk.Label(self, text="Working preset -> " + self.working_directory, font=("Arial", 10))
-        label.pack(pady=50)
+        for file in required_files:
+            if not os.path.exists(os.path.join(working_directory, file)):
+                messagebox.showerror("Błąd", f"Brak pliku: {file}")
+                return False
+        
+        at_least_one_class_year = False
+        for file in os.listdir(working_directory):
+            if os.path.isfile(file) == True:
+                if file.startswith("klasa") and file.endswith(".json"):
+                    at_least_one_class_year = True
+                    return True
+                else:
+                    pass
+        if not at_least_one_class_year:
+            messagebox.showerror("Błąd", "Brak jakiegokolwiek pliku klasowego")
+            return False
+                    
+        return True
+            
+    def set_priority(self):
+        pass # Work in progress
+        
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-    def preset_manager(self):
+    def data_set_manager(self):
         self.clear_window()
 
         label = tk.Label(self, text="Zarządzanie zestawami danych", font=("Arial", 16))
         label.pack(pady=10)
 
-        new_preset_button = tk.Button(self, text="Stwórz nowy preset", width=40, command=self.initialize_new_preset)
-        new_preset_button.pack(pady=5)
+        new_data_set_button = tk.Button(self, text="Stwórz nowy data_set", width=40, command=self.initialize_new_data_set)
+        new_data_set_button.pack(pady=5)
 
-        remove_preset_button = tk.Button(self, text="Usuń preset", width=40, command=self.remove_preset)
-        remove_preset_button.pack(pady=5)
+        remove_data_set_button = tk.Button(self, text="Usuń data_set", width=40, command=self.remove_data_set)
+        remove_data_set_button.pack(pady=5)
         
-        rename_preset_button = tk.Button(self, text="Zmień nazwę zestawu danych", width=40, command=self.rename_preset)
-        rename_preset_button.pack(pady=5)
+        rename_data_set_button = tk.Button(self, text="Zmień nazwę zestawu danych", width=40, command=self.rename_data_set)
+        rename_data_set_button.pack(pady=5)
 
 
         back_button = tk.Button(self, text="Powrót", width=40, command=self.main_menu)
         back_button.pack(pady=10)
 
-    def remove_preset(self):
+    def remove_data_set(self):
         self.clear_window()
 
         label = tk.Label(self, text="Usuń zestaw danych - wybierz typ szkoły", font=("Arial", 16))
@@ -70,8 +105,8 @@ class App(tk.Tk):
 
         school_types = {
             "Podstawowa": "szkoła_podstawowa",
-            "Liceum": "szkoła_średnia/user_presets/liceum",
-            "Technikum": "szkoła_średnia/user_presets/technikum"
+            "Liceum": "szkoła_średnia/user_data_sets/liceum",
+            "Technikum": "szkoła_średnia/user_data_sets/technikum"
         }
 
         for school_name, school_folder in school_types.items():
@@ -79,54 +114,54 @@ class App(tk.Tk):
                 self,
                 text=school_name,
                 width=40,
-                command=lambda folder=school_folder: self.select_preset_to_remove(folder)
+                command=lambda folder=school_folder: self.select_data_set_to_remove(folder)
             ).pack(pady=5)
 
-        back_button = tk.Button(self, text="Powrót", width=40, command=self.preset_manager)
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.data_set_manager)
         back_button.pack(pady=10)
 
-    def select_preset_to_remove(self, school_folder):
+    def select_data_set_to_remove(self, school_folder):
         self.clear_window()
 
-        presets_path = os.path.join("data_sets", school_folder)
-        if not os.path.exists(presets_path):
+        data_sets_path = os.path.join("data_sets", school_folder)
+        if not os.path.exists(data_sets_path):
             messagebox.showwarning("Brak danych", f"Brak katalogu dla {school_folder}.")
-            self.remove_preset()
+            self.remove_data_set()
             return
 
-        presets = os.listdir(presets_path)
-        if not presets:
+        data_sets = os.listdir(data_sets_path)
+        if not data_sets:
             messagebox.showwarning("Brak danych", f"Brak zestawów danych w katalogu {school_folder}.")
-            self.remove_preset()
+            self.remove_data_set()
             return
 
         label = tk.Label(self, text=f"Wybierz zestaw danych do usunięcia z {school_folder}", font=("Arial", 14))
         label.pack(pady=10)
 
-        for preset in presets:
+        for data_set in data_sets:
             tk.Button(
                 self,
-                text=preset,
+                text=data_set,
                 width=40,
-                command=lambda p=preset: self.confirm_remove_preset(presets_path, p)
+                command=lambda p=data_set: self.confirm_remove_data_set(data_sets_path, p)
             ).pack(pady=5)
 
-        back_button = tk.Button(self, text="Powrót", width=40, command=self.remove_preset)
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.remove_data_set)
         back_button.pack(pady=10)
 
-    def confirm_remove_preset(self, presets_path, preset):
-        confirm = messagebox.askyesno("Potwierdzenie", f"Czy na pewno chcesz usunąć zestaw danych '{preset}'?")
+    def confirm_remove_data_set(self, data_sets_path, data_set):
+        confirm = messagebox.askyesno("Potwierdzenie", f"Czy na pewno chcesz usunąć zestaw danych '{data_set}'?")
         if confirm:
-            preset_path = os.path.join(presets_path, preset)
+            data_set_path = os.path.join(data_sets_path, data_set)
             try:
                 import shutil
-                shutil.rmtree(preset_path)
-                messagebox.showinfo("Sukces", f"zestaw danych '{preset}' został usunięty.")
+                shutil.rmtree(data_set_path)
+                messagebox.showinfo("Sukces", f"zestaw danych '{data_set}' został usunięty.")
             except Exception as e:
                 messagebox.showerror("Błąd", f"Nie udało się usunąć zestawu danych: {e}")
-        self.remove_preset()
+        self.remove_data_set()
         
-    def rename_preset(self):
+    def rename_data_set(self):
         self.clear_window()
 
         label = tk.Label(self, text="Zmień nazwę zestawu danych - wybierz typ szkoły", font=("Arial", 16))
@@ -134,8 +169,8 @@ class App(tk.Tk):
 
         school_types = {
             "Podstawowa": "szkoła_podstawowa",
-            "Liceum": "szkoła_średnia/user_presets/liceum",
-            "Technikum": "szkoła_średnia/user_presets/technikum"
+            "Liceum": "szkoła_średnia/user_data_sets/liceum",
+            "Technikum": "szkoła_średnia/user_data_sets/technikum"
         }
 
         for school_name, school_folder in school_types.items():
@@ -143,62 +178,62 @@ class App(tk.Tk):
                 self,
                 text=school_name,
                 width=40,
-                command=lambda folder=school_folder: self.select_preset_to_rename(folder)
+                command=lambda folder=school_folder: self.select_data_set_to_rename(folder)
             ).pack(pady=5)
 
-        back_button = tk.Button(self, text="Powrót", width=40, command=self.preset_manager)
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.data_set_manager)
         back_button.pack(pady=10)
 
-    def select_preset_to_rename(self, school_folder):
+    def select_data_set_to_rename(self, school_folder):
         self.clear_window()
 
-        presets_path = os.path.join("data_sets", school_folder)
-        if not os.path.exists(presets_path):
+        data_sets_path = os.path.join("data_sets", school_folder)
+        if not os.path.exists(data_sets_path):
             messagebox.showwarning("Brak danych", f"Brak katalogu dla {school_folder}.")
-            self.rename_preset()
+            self.rename_data_set()
             return
 
-        presets = os.listdir(presets_path)
-        if not presets:
+        data_sets = os.listdir(data_sets_path)
+        if not data_sets:
             messagebox.showwarning("Brak danych", f"Brak zestawów danych w katalogu {school_folder}.")
-            self.rename_preset()
+            self.rename_data_set()
             return
 
         label = tk.Label(self, text=f"Wybierz zestaw danych do zmiany nazwy z {school_folder}", font=("Arial", 14))
         label.pack(pady=10)
 
-        for preset in presets:
+        for data_set in data_sets:
             tk.Button(
                 self,
-                text=preset,
+                text=data_set,
                 width=40,
-                command=lambda p=preset: self.confirm_rename_preset(presets_path, p)
+                command=lambda p=data_set: self.confirm_rename_data_set(data_sets_path, p)
             ).pack(pady=5)
 
-        back_button = tk.Button(self, text="Powrót", width=40, command=self.rename_preset)
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.rename_data_set)
         back_button.pack(pady=10)
 
-    def confirm_rename_preset(self, presets_path, preset):
-        new_name = simpledialog.askstring("Zmień nazwę zestawu danych", f"Podaj nową nazwę dla zestawu danych '{preset}':")
+    def confirm_rename_data_set(self, data_sets_path, data_set):
+        new_name = simpledialog.askstring("Zmień nazwę zestawu danych", f"Podaj nową nazwę dla zestawu danych '{data_set}':")
         if not new_name:
             return
 
-        old_path = os.path.join(presets_path, preset)
-        new_path = os.path.join(presets_path, new_name)
+        old_path = os.path.join(data_sets_path, data_set)
+        new_path = os.path.join(data_sets_path, new_name)
 
         if os.path.exists(new_path):
-            messagebox.showerror("Błąd", "Preset o tej nazwie już istnieje.")
+            messagebox.showerror("Błąd", "data_set o tej nazwie już istnieje.")
             return
 
         try:
             os.rename(old_path, new_path)
-            messagebox.showinfo("Sukces", f"Preset '{preset}' został przemianowany na '{new_name}'.")
+            messagebox.showinfo("Sukces", f"data_set '{data_set}' został przemianowany na '{new_name}'.")
         except Exception as e:
             messagebox.showerror("Błąd", f"Nie udało się zmienić nazwy zestawu danych: {e}")
 
-        self.rename_preset()
+        self.rename_data_set()
 
-    def initialize_new_preset(self):
+    def initialize_new_data_set(self):
         self.clear_window()
 
         label = tk.Label(self, text="Stwórz nowy zestaw danych - wybierz typ szkoły", font=("Arial", 16))
@@ -206,8 +241,8 @@ class App(tk.Tk):
 
         school_types = {
             "Podstawowa": ("szkoła_podstawowa", 8),
-            "Liceum": ("szkoła_średnia/user_presets/liceum", 4),
-            "Technikum": ("szkoła_średnia/user_presets/technikum", 5)
+            "Liceum": ("szkoła_średnia/user_data_sets/liceum", 4),
+            "Technikum": ("szkoła_średnia/user_data_sets/technikum", 5)
         }
 
         for school_name, (directory, max_class) in school_types.items():
@@ -215,16 +250,16 @@ class App(tk.Tk):
                 self,
                 text=school_name,
                 width=40,
-                command=lambda d=directory, m=max_class: self.create_preset(d, m)
+                command=lambda d=directory, m=max_class: self.create_data_set(d, m)
             ).pack(pady=5)
 
-        back_button = tk.Button(self, text="Powrót", width=40, command=self.preset_manager)
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.data_set_manager)
         back_button.pack(pady=10)
 
-    def create_preset(self, directory, max_class):
+    def create_data_set(self, directory, max_class):
         name = simpledialog.askstring("Nazwa zestawu danych", "Podaj nazwę nowego zestawu danych:")
         if not name:
-            self.preset_manager()
+            self.data_set_manager()
             return
 
         final_path = os.path.join("data_sets", directory, name)
@@ -239,7 +274,7 @@ class App(tk.Tk):
         except FileExistsError:
             messagebox.showerror("Błąd", "Zestaw danych już istnieje.")
 
-        self.preset_manager()
+        self.data_set_manager()
         
     def edit_class_year(self):
         self.clear_window()
@@ -250,7 +285,7 @@ class App(tk.Tk):
             ("Edytuj wymiar godzinowy przedmiotów rocznika", self.edit_class_year_hours),
             ("Edytuj przedmioty dla rocznika", self.edit_class_year_subjects),
             ("Dodaj rocznik", self.add_class_year),
-            ("Powrót", self.preset_editor)
+            ("Powrót", self.data_set_editor)
         ]
         for (text, command) in options:
             tk.Button(self, text=text, width=40, command=command).pack(pady=4)
@@ -295,13 +330,13 @@ class App(tk.Tk):
         for (text, command) in options:
             tk.Button(self, text=text, width=40, command=command).pack(pady=4)
         
-    def preset_editor(self):
+    def data_set_editor(self):
         self.clear_window()
         label = tk.Label(self, text="Edytor zestawów danych - wybierz akcję")
         label.pack(pady=10)
         
-        select_preset_button = tk.Button(self, text="Wybierz zestaw danych", width=40, command=self.select_preset)
-        select_preset_button.pack(pady=4)
+        select_data_set_button = tk.Button(self, text="Wybierz zestaw danych", width=40, command=self.select_data_set)
+        select_data_set_button.pack(pady=4)
             
         self.edit_classes_button = tk.Button(self, text="Edytuj klasy", width=40, command=self.edit_classes)
         self.edit_years_button = tk.Button(self, text="Edytuj roczniki", width=40, command=self.edit_class_year)
@@ -313,7 +348,7 @@ class App(tk.Tk):
         self.edit_availability_button.pack(pady=4)
         self.edit_teachers_button.pack(pady=4)
         
-        if self.working_directory == "data_sets/szkoła_średnia/user_presets/":
+        if self.working_directory == "data_sets/szkoła_średnia/user_data_sets/":
             self.edit_classes_button.config(state="disabled")
             self.edit_years_button.config(state="disabled")
             self.edit_availability_button.config(state="disabled")
@@ -327,7 +362,7 @@ class App(tk.Tk):
         back_button = tk.Button(self, text="Powrót", width=40, command=self.main_menu)
         back_button.pack(pady=10)
 
-    def select_preset(self):
+    def select_data_set(self):
         self.clear_window()
 
         label = tk.Label(self, text="Wybierz typ szkoły", font=("Arial", 16))
@@ -344,45 +379,45 @@ class App(tk.Tk):
                 self,
                 text=school_name,
                 width=40,
-                command=lambda folder=school_folder: self.display_presets(folder)
+                command=lambda folder=school_folder: self.display_data_sets(folder)
             ).pack(pady=5)
         
         
 
-        back_button = tk.Button(self, text="Powrót", width=40, command=self.preset_editor)
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.data_set_editor)
         back_button.pack(pady=10)
 
-    def display_presets(self, school_folder):
+    def display_data_sets(self, school_folder):
         self.clear_window()
 
-        presets_path = os.path.join("data_sets/szkoła_średnia/user_presets", school_folder)
-        if not os.path.exists(presets_path):
+        data_sets_path = os.path.join("data_sets/szkoła_średnia/user_data_sets", school_folder)
+        if not os.path.exists(data_sets_path):
             messagebox.showwarning("Brak danych", f"Brak katalogu dla {school_folder}.")
-            self.preset_editor()
+            self.data_set_editor()
             return
 
-        presets = os.listdir(presets_path)
-        if not presets:
+        data_sets = os.listdir(data_sets_path)
+        if not data_sets:
             messagebox.showwarning("Brak danych", f"Brak zestawów danych w katalogu {school_folder}.")
-            self.preset_editor()
+            self.data_set_editor()
             return
 
         label = tk.Label(self, text=f"Wybierz zestaw danych z {school_folder}", font=("Arial", 14))
         label.pack(pady=10)
 
-        for preset in presets:
+        for data_set in data_sets:
             tk.Button(
                 self,
-                text=preset,
+                text=data_set,
                 width=40,
-                command=lambda p=preset: self.set_working_directory(presets_path, p)
+                command=lambda p=data_set: self.set_working_directory(data_sets_path, p)
             ).pack(pady=5)
 
-        back_button = tk.Button(self, text="Powrót", width=40, command=self.preset_editor)
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.data_set_editor)
         back_button.pack(pady=10)
 
-    def set_working_directory(self, presets_path, preset):
-        self.working_directory = os.path.join(presets_path, preset)
+    def set_working_directory(self, data_sets_path, data_set):
+        self.working_directory = os.path.join(data_sets_path, data_set)
         messagebox.showinfo("Wybrano", f"Aktywny katalog: {self.working_directory}")
 
         self.main_menu()
@@ -391,7 +426,7 @@ class App(tk.Tk):
         self.clear_window()
         label = tk.Label(self, text="Edytor dostępności nauczycieli - funkcja jeszcze niezaimplementowana")
         label.pack(pady=50)
-        back = tk.Button(self, text="Wstecz", command=self.preset_editor)
+        back = tk.Button(self, text="Wstecz", command=self.data_set_editor)
         back.pack()
     
     def edit_teachers(self):
@@ -403,7 +438,7 @@ class App(tk.Tk):
             ("Dodaj nauczyciela", self.add_teacher),
             ("Modyfikuj nauczyciela", self.modify_teacher),
             ("Usuń nauczyciela", self.remove_teacher),
-            ("Powrót", self.preset_editor)
+            ("Powrót", self.data_set_editor)
         ]
 
         for (text, command) in options:
@@ -413,7 +448,7 @@ class App(tk.Tk):
         self.clear_window()
         label = tk.Label(self, text="Edytor klas - funkcja jeszcze niezaimplementowana")
         label.pack(pady=50)
-        back = tk.Button(self, text="Wstecz", command=self.preset_editor)
+        back = tk.Button(self, text="Wstecz", command=self.data_set_editor)
         back.pack()
 
     def modify_teacher(self):
@@ -453,7 +488,7 @@ class App(tk.Tk):
             messagebox.showinfo("Sukces", "Dane nauczyciela zostały zaktualizowane")
 
     def add_teacher(self):
-        if not os.path.exists(self.working_directory) or "user_presets" not in self.working_directory:
+        if not os.path.exists(self.working_directory) or "user_data_sets" not in self.working_directory:
             messagebox.showwarning("Brak zestawu danych", "Najpierw wybierz zestaw danych.")
             return
 
@@ -488,7 +523,7 @@ class App(tk.Tk):
         messagebox.showinfo("Sukces", f"Dodano nauczyciela {name} {surname}")    
 
     def remove_teacher(self):
-        if not os.path.exists(self.working_directory) or "user_presets" not in self.working_directory:
+        if not os.path.exists(self.working_directory) or "user_data_sets" not in self.working_directory:
             messagebox.showwarning("Brak zestawu danych", "Najpierw wybierz zestaw danych użytkownika.")
             return
 
