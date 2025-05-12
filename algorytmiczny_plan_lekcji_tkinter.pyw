@@ -1,7 +1,20 @@
-import tkinter as tk
-from tkinter import messagebox, simpledialog
 import os
+try:
+    import tkinter as tk
+except ImportError:
+    print("Couldn't install tkinter. Trying to install, else, try downloading them manually.")
+    os.system('python -m pip install tkinter')
+import tkinter as tk
+
+try:
+    import json
+except ImportError:
+    print("Couldn't install json. Trying to install, else, try downloading them manually.")
+    os.system('python -m pip install json')
 import json
+
+
+from tkinter import messagebox, simpledialog
 
 class App(tk.Tk):
     def __init__(self):
@@ -42,7 +55,7 @@ class App(tk.Tk):
     def main_menu(self):
         self.clear_window()
 
-        title = tk.Label(self, text="ALGORYTMICZNY UKŁADACZ PLANU alpha 0.1", font=("Arial", 16, "bold"))
+        title = tk.Label(self, text="ALGORYTMICZNY UKŁADACZ PLANU alpha 1.0", font=("Arial", 16, "bold"))
         title.pack(pady=20)
 
         is_data_set_selected = self.working_directory != "data_sets/szkoła_średnia/user_data_sets/"
@@ -64,10 +77,8 @@ class App(tk.Tk):
 
 ####################################
 # DO ZROBIENIA:
+# OBLICZANIE PLANU
 # Edytowanie klas
-# Edytowanie roczników
-# Edytowanie dostępności nauczycieli
-
 
 ####################################
 
@@ -330,58 +341,178 @@ class App(tk.Tk):
         
     def edit_class_year(self):
         self.clear_window()
-        label = tk.Label(self, text="Edytor roczników - wybierz akcję")
+        label = tk.Label(self, text="Edytor roczników - wybierz akcję", font=("Arial", 16))
         label.pack(pady=10)
+
         options = [
-            ("Wybierz rocznik", self.select_class_year),
-            ("Edytuj wymiar godzinowy przedmiotów rocznika", self.edit_class_year_hours),
-            ("Edytuj przedmioty dla rocznika", self.edit_class_year_subjects),
+            ("Edytuj roczniki", self.select_class_year),
             ("Dodaj rocznik", self.add_class_year),
+            ("Usuń rocznik", self.remove_class_year),
             ("Powrót", self.data_set_editor)
         ]
         for (text, command) in options:
             tk.Button(self, text=text, width=40, command=command).pack(pady=4)
-    
+
+    def remove_class_year(self):
+        self.clear_window()
+
+        class_year_files = [
+            f for f in os.listdir(self.working_directory) if f.startswith("klasa") and f.endswith(".json")
+        ]
+
+        if not class_year_files:
+            messagebox.showwarning("Brak danych", "Brak roczników do usunięcia.")
+            self.edit_class_year()
+            return
+
+        label = tk.Label(self, text="Usuń rocznik - wybierz rocznik", font=("Arial", 16))
+        label.pack(pady=10)
+
+        for class_year in class_year_files:
+            tk.Button(
+                self,
+                text=class_year.replace(".json", ""),
+                width=40,
+                command=lambda cy=class_year: self.confirm_remove_class_year(cy)
+            ).pack(pady=5)
+
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.edit_class_year)
+        back_button.pack(pady=10)
+
+    def confirm_remove_class_year(self, class_year):
+        confirm = messagebox.askyesno(
+            "Potwierdzenie",
+            f"Czy na pewno chcesz usunąć rocznik '{class_year.replace('.json', '')}'?"
+        )
+        if confirm:
+            path = os.path.join(self.working_directory, class_year)
+            try:
+                os.remove(path)
+                messagebox.showinfo("Sukces", f"Rocznik '{class_year.replace('.json', '')}' został usunięty.")
+            except Exception as e:
+                messagebox.showerror("Błąd", f"Nie udało się usunąć rocznika: {e}")
+        self.remove_class_year()
+
     def select_class_year(self):
         self.clear_window()
-        label = tk.Label(self, text="Wybierz rocznik - funkcja jeszcze niezaimplementowana")
-        label.pack(pady=50)
-        back = tk.Button(self, text="Wstecz", command=self.edit_class_year)
-        back.pack()
-    
-    def edit_class_year_hours(self):
-        self.clear_window()
-        label = tk.Label(self, text="Edytor wymiaru godzinowego przedmiotów rocznika")
-        label.pack(pady=20)
-        
-        options = [
-            ("Powrót", self.edit_class_year)
+
+        class_year_files = [
+            f for f in os.listdir(self.working_directory) if f.startswith("klasa") and f.endswith(".json")
         ]
-        
-        for (text, command) in options:
-            tk.Button(self, text=text, width=40, command=command).pack(pady=4)
-        
-    def edit_class_year_subjects(self):
+
+        if not class_year_files:
+            messagebox.showwarning("Brak danych", "Brak roczników do wyboru.")
+            self.edit_class_year()
+            return
+
+        label = tk.Label(self, text="Edytuj roczniki", font=("Arial", 16))
+        label.pack(pady=10)
+
+        for class_year in class_year_files:
+            tk.Button(
+                self,
+                text=class_year.replace(".json", ""),
+                width=40,
+                command=lambda cy=class_year: self.edit_class_year_subjects(cy)
+            ).pack(pady=5)
+
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.edit_class_year)
+        back_button.pack(pady=10)
+
+    def edit_class_year_subjects(self, class_year):
         self.clear_window()
-        label = tk.Label(self, text="Edytor przedmiotów dla rocznika")
-        label.pack(pady=20)
-        
-        options = [
-            ("Powrót", self.edit_class_year)
-        ]
-        
-        for (text, command) in options:
-            tk.Button(self, text=text, width=40, command=command).pack(pady=4)
-    
+
+        label = tk.Label(self, text=f"Edytor przedmiotów dla rocznika: {class_year.replace('.json', '')}", font=("Arial", 16))
+        label.pack(pady=10)
+
+        path = os.path.join(self.working_directory, class_year)
+        if not os.path.exists(path):
+            messagebox.showerror("Błąd", f"Plik {class_year} nie istnieje.")
+            self.edit_class_year()
+            return
+
+        with open(path, 'r+', encoding='utf-8') as f:
+            data = json.load(f)
+
+        if "subjects" not in data:
+            data["subjects"] = []
+
+        subjects = data["subjects"]
+
+        scrollable_frame = self.create_scrollable_frame()
+
+        for subject in subjects:
+            frame = tk.Frame(scrollable_frame)
+            frame.pack(pady=5)
+
+            name_var = tk.StringVar(value=subject["name"])
+            tk.Entry(frame, textvariable=name_var, width=20).pack(side="left", padx=5)
+
+            hours_var = tk.StringVar(value=str(subject["hours"]))
+            tk.Entry(frame, textvariable=hours_var, width=5).pack(side="left", padx=5)
+
+            def save_subject(sub=subject, name_var=name_var, hours_var=hours_var):
+                try:
+                    sub["name"] = name_var.get()
+                    sub["hours"] = int(hours_var.get())
+                    with open(path, 'w', encoding='utf-8') as f:
+                        json.dump(data, f, ensure_ascii=False, indent=4)
+                    messagebox.showinfo("Sukces", f"Przedmiot {sub['name']} został zaktualizowany.")
+                except ValueError:
+                    messagebox.showerror("Błąd", "Wprowadź poprawną liczbę godzin.")
+
+            tk.Button(frame, text="Zapisz", command=save_subject).pack(side="left", padx=5)
+
+            def remove_subject(sub=subject):
+                subjects.remove(sub)
+                with open(path, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, ensure_ascii=False, indent=4)
+                messagebox.showinfo("Sukces", f"Przedmiot {sub['name']} został usunięty.")
+                self.edit_class_year_subjects(class_year)
+
+            tk.Button(frame, text="Usuń", command=remove_subject).pack(side="left", padx=5)
+
+        def add_subject():
+            new_name = simpledialog.askstring("Dodaj przedmiot", "Podaj nazwę nowego przedmiotu:")
+            if not new_name:
+                return
+            new_hours = simpledialog.askinteger("Dodaj przedmiot", "Podaj liczbę godzin dla nowego przedmiotu:")
+            if new_hours is None:
+                return
+            subjects.append({"name": new_name, "hours": new_hours})
+            with open(path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=4)
+            messagebox.showinfo("Sukces", f"Przedmiot {new_name} został dodany.")
+            self.edit_class_year_subjects(class_year)
+
+        tk.Button(scrollable_frame, text="Dodaj przedmiot", width=40, command=add_subject).pack(pady=10)
+
+        back_button = tk.Button(scrollable_frame, text="Powrót", width=40, command=self.edit_class_year)
+        back_button.pack(pady=10)
+
     def add_class_year(self):
         self.clear_window()
-        options = [
-            ("Powrót", self.edit_class_year)
-        ]
-        
-        for (text, command) in options:
-            tk.Button(self, text=text, width=40, command=command).pack(pady=4)
-        
+
+        label = tk.Label(self, text="Dodaj nowy rocznik", font=("Arial", 16))
+        label.pack(pady=10)
+
+        new_class_year = simpledialog.askstring("Dodaj rocznik", "Podaj nazwę nowego rocznika (np. klasa1):")
+        if not new_class_year:
+            self.edit_class_year()
+            return
+
+        path = os.path.join(self.working_directory, f"{new_class_year}.json")
+        if os.path.exists(path):
+            messagebox.showerror("Błąd", "Rocznik o tej nazwie już istnieje.")
+            self.edit_class_year()
+            return
+
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump({"subjects": []}, f, ensure_ascii=False, indent=4)
+
+        messagebox.showinfo("Sukces", f"Rocznik {new_class_year} został dodany.")
+        self.edit_class_year()
+
     def data_set_editor(self):
         self.clear_window()
         label = tk.Label(self, text="Edytor zestawów danych - wybierz akcję")
@@ -487,16 +618,18 @@ class App(tk.Tk):
         with open(path, 'r+', encoding='utf-8') as f:
             data = json.load(f)
             teachers = data.get("data", [])
-            if len(teachers) <= 1:
+            if len(teachers) <= 1:  # Check if there are any teachers (excluding headers)
                 messagebox.showwarning("Brak danych", "Brak dostępności nauczycieli do edycji")
                 return
 
+        # Create a scrollable frame
         scrollable_frame = self.create_scrollable_frame()
 
         label = tk.Label(scrollable_frame, text="Edytor dostępności nauczycieli - wybierz nauczyciela", font=("Arial", 16))
         label.pack(pady=10)
 
-        for teacher in teachers[1:]:
+        # Display each teacher as a button
+        for teacher in teachers[1:]:  # Skip the header row
             teacher_info = f"{teacher[0]} - {teacher[1]}"
             tk.Button(
                 scrollable_frame,
