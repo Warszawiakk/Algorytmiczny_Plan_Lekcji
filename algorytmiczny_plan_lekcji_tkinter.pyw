@@ -33,12 +33,10 @@ class App(tk.Tk):
     def create_scrollable_frame(self):
         self.clear_window()
 
-        # Create a canvas and a scrollbar
         canvas = tk.Canvas(self)
         scrollbar = tk.Scrollbar(self, orient="vertical", command=canvas.yview)
         scrollable_frame = tk.Frame(canvas)
 
-        # Configure the canvas
         scrollable_frame.bind(
             "<Configure>",
             lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
@@ -46,7 +44,6 @@ class App(tk.Tk):
         canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
 
-        # Pack the canvas and scrollbar
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
 
@@ -78,7 +75,6 @@ class App(tk.Tk):
 ####################################
 # DO ZROBIENIA:
 # OBLICZANIE PLANU
-# Edytowanie klas
 
 ####################################
 
@@ -102,7 +98,7 @@ class App(tk.Tk):
             messagebox.showerror("Błąd", "Integralność plików została naruszona, nie można kontynuować.")
             return False
         
-        # The mighty algoritm itself \/.
+
         
         teacher_availability = json.load(open(os.path.join(self.working_directory, "teacher_availability.json"), 'r', encoding='utf-8'))
         classes = json.load(open(os.path.join(self.working_directory, "classes.json"), 'r', encoding='utf-8'))
@@ -618,18 +614,16 @@ class App(tk.Tk):
         with open(path, 'r+', encoding='utf-8') as f:
             data = json.load(f)
             teachers = data.get("data", [])
-            if len(teachers) <= 1:  # Check if there are any teachers (excluding headers)
+            if len(teachers) <= 1: 
                 messagebox.showwarning("Brak danych", "Brak dostępności nauczycieli do edycji")
                 return
 
-        # Create a scrollable frame
         scrollable_frame = self.create_scrollable_frame()
 
         label = tk.Label(scrollable_frame, text="Edytor dostępności nauczycieli - wybierz nauczyciela", font=("Arial", 16))
         label.pack(pady=10)
 
-        # Display each teacher as a button
-        for teacher in teachers[1:]:  # Skip the header row
+        for teacher in teachers[1:]:
             teacher_info = f"{teacher[0]} - {teacher[1]}"
             tk.Button(
                 scrollable_frame,
@@ -687,9 +681,9 @@ class App(tk.Tk):
         label.pack(pady=10)
 
         options = [
-            ("Dodaj nauczyciela", self.add_teacher),
+            ("Dodaj nauczyciela", self.add_class_teacher),
             ("Modyfikuj nauczyciela", self.modify_teacher),
-            ("Usuń nauczyciela", self.remove_teacher),
+            ("Usuń nauczyciela", self.remove_class_teacher),
             ("Powrót", self.data_set_editor)
         ]
 
@@ -698,10 +692,94 @@ class App(tk.Tk):
 
     def edit_classes(self):
         self.clear_window()
-        label = tk.Label(self, text="Edytor klas - funkcja jeszcze niezaimplementowana")
-        label.pack(pady=50)
-        back = tk.Button(self, text="Wstecz", command=self.data_set_editor)
-        back.pack()
+        label = tk.Label(self, text="Edytor klas - wybierz klasę", font=("Arial", 16))
+        label.pack(pady=10)
+
+        path = os.path.join(self.working_directory, "classes.json")
+        if not os.path.exists(path):
+            messagebox.showerror("Błąd", "Plik classes.json nie istnieje.")
+            self.data_set_editor()
+            return
+
+        with open(path, 'r+', encoding='utf-8') as f:
+            data = json.load(f)
+            classes = data.get("classes", [])
+
+        if not classes:
+            messagebox.showwarning("Brak danych", "Brak klas do edycji.")
+            self.data_set_editor()
+            return
+
+        for class_data in classes:
+            tk.Button(
+                self,
+                text=class_data["name"],
+                width=40,
+                command=lambda c=class_data: self.edit_class_menu(c, classes, path)
+            ).pack(pady=5)
+
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.data_set_editor)
+        back_button.pack(pady=10)
+
+    def edit_class_menu(self, class_data, classes, path):
+        self.clear_window()
+
+        label = tk.Label(self, text=f"Edytor klasy: {class_data['name']}", font=("Arial", 16))
+        label.pack(pady=10)
+
+        options = [
+            ("Edytuj nazwę klasy", lambda: self.edit_class_name(class_data, classes, path)),
+            ("Edytuj nauczycieli klasy", lambda: self.edit_class_teachers(class_data, classes, path)),
+            ("Powrót", self.edit_classes)
+        ]
+
+        for (text, command) in options:
+            tk.Button(self, text=text, width=40, command=command).pack(pady=5)
+
+    def edit_class_name(self, class_data, classes, path):
+        new_name = simpledialog.askstring("Edytuj nazwę klasy", "Podaj nową nazwę klasy:", initialvalue=class_data["name"])
+        if new_name:
+            class_data["name"] = new_name
+            with open(path, 'w', encoding='utf-8') as f:
+                json.dump({"classes": classes}, f, ensure_ascii=False, indent=4)
+            messagebox.showinfo("Sukces", f"Nazwa klasy została zmieniona na {new_name}.")
+        self.edit_class_menu(class_data, classes, path)
+
+    def edit_class_teachers(self, class_data, classes, path):
+        self.clear_window()
+        
+        label = tk.Label(self, text=f"Edytuj nauczycieli klasy: {class_data['name']}", font=("Arial", 16))
+        label.pack(pady=10)
+
+        teachers = class_data.get("teachers", [])
+
+        def remove_class_teacher(t):
+            teachers.remove(t)
+            with open(path, 'w', encoding='utf-8') as f:
+                json.dump({"classes": classes}, f, ensure_ascii=False, indent=4)
+            messagebox.showinfo("Sukces", f"Nauczyciel {t} został usunięty.")
+            self.edit_class_teachers(class_data, classes, path)
+        
+        def add_class_teacher():
+            new_teacher = simpledialog.askstring("Dodaj nauczyciela", "Podaj nazwę nauczyciela:")
+            if new_teacher:
+                teachers.append(new_teacher)
+                with open(path, 'w', encoding='utf-8') as f:
+                    json.dump({"classes": classes}, f, ensure_ascii=False, indent=4)
+                messagebox.showinfo("Sukces", f"Nauczyciel {new_teacher} został dodany.")
+                self.edit_class_teachers(class_data, classes, path)
+
+        for teacher in teachers:
+            frame = tk.Frame(self)
+            frame.pack(pady=5)
+
+            tk.Label(frame, text=teacher, width=30, anchor="w").pack(side="left")
+            tk.Button(frame, text="Usuń", command=lambda t=teacher: remove_class_teacher(t)).pack(side="left", padx=5)
+
+        tk.Button(self, text="Dodaj nauczyciela", width=40, command=add_class_teacher).pack(pady=10)
+        tk.Button(self, text="Powrót", width=40, command=lambda: self.edit_class_menu(class_data, classes, path)).pack(pady=10)
+
+
 
     def modify_teacher(self):
         path = os.path.join(self.working_directory, "teachers.json")
@@ -739,7 +817,7 @@ class App(tk.Tk):
 
             messagebox.showinfo("Sukces", "Dane nauczyciela zostały zaktualizowane")
 
-    def add_teacher(self):
+    def add_class_teacher(self):
         if not os.path.exists(self.working_directory) or "user_data_sets" not in self.working_directory:
             messagebox.showwarning("Brak zestawu danych", "Najpierw wybierz zestaw danych.")
             return
@@ -774,7 +852,7 @@ class App(tk.Tk):
 
         messagebox.showinfo("Sukces", f"Dodano nauczyciela {name} {surname}")    
 
-    def remove_teacher(self):
+    def remove_class_teacher(self):
         if not os.path.exists(self.working_directory) or "user_data_sets" not in self.working_directory:
             messagebox.showwarning("Brak zestawu danych", "Najpierw wybierz zestaw danych użytkownika.")
             return
@@ -811,7 +889,7 @@ class App(tk.Tk):
 
         filter_value = simpledialog.askstring("Filtruj", f"Podaj wartość dla {filter_type}:")
         if not filter_value:
-            self.remove_teacher()
+            self.remove_class_teacher()
             return
 
         if filter_type == "id":
@@ -827,7 +905,7 @@ class App(tk.Tk):
 
         if not filtered_teachers:
             messagebox.showwarning("Brak wyników", "Nie znaleziono nauczycieli spełniających kryteria")
-            self.remove_teacher()
+            self.remove_class_teacher()
             return
 
         for teacher in filtered_teachers:
@@ -836,13 +914,13 @@ class App(tk.Tk):
                 self,
                 text=teacher_info,
                 width=60,
-                command=lambda t=teacher: self.confirm_remove_teacher(teachers, t)
+                command=lambda t=teacher: self.confirm_remove_class_teacher(teachers, t)
             ).pack(pady=5)
 
-        back_button = tk.Button(self, text="Powrót", width=40, command=self.remove_teacher)
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.remove_class_teacher)
         back_button.pack(pady=10)
 
-    def confirm_remove_teacher(self, teachers, teacher):
+    def confirm_remove_class_teacher(self, teachers, teacher):
         confirm = messagebox.askyesno(
             "Potwierdzenie",
             f"Czy na pewno chcesz usunąć nauczyciela?\n\nID: {teacher['id']}\nImię: {teacher['name']}\nNazwisko: {teacher['surname']}\nPrzedmioty: {', '.join(teacher['subjects'])}"
@@ -853,7 +931,7 @@ class App(tk.Tk):
             with open(path, 'w', encoding='utf-8') as f:
                 json.dump({"teachers": teachers}, f, ensure_ascii=False, indent=4)
             messagebox.showinfo("Sukces", "Nauczyciel został usunięty")
-        self.remove_teacher()
+        self.remove_class_teacher()
 
 if __name__ == "__main__":
     app = App()
