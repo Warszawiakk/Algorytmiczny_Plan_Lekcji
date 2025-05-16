@@ -28,28 +28,27 @@ muszą być obok siebie, nauczyciel nie może prowadzić więcej niż 5 lekcji w
 # =========================================================================
     
     # -- Koncepcja dzialania -- #
-    # * Zostaje wczytany json 'klasa[n]', dlatego program wie, jakie przedmioty powinien wypełnić
-    # * Zostaje wczytany json 'teachers'
-    # * Zostaje wczytany json 'teacher_availability'
+    # * \\ Zostaje wczytany json 'klasa[n]', dlatego program wie, jakie przedmioty powinien wypełnić
+    # * \\ Zostaje wczytany json 'teachers'
+    # * \\ Zostaje wczytany json 'teacher_availability'
     # *                     \/
-    # * Program zaczyna wypełniać pierwszy przedmiot z listy przedmiotów dla klasy 1 (wypełnianie od klasy 1 do klasy ostatniej)
-    # * Sprawdza, w jakich innych (i czy) klasach dany przedmiot występuje, na tej postawie ogranicza wypelnianie.
-    # * Sprawdza, czy dany nauczyciel uczy innych przemiotów, jeżeli tak, to sprawdza jakich, na tej podstawie sprawdza również, czy inne
-    # * klasy/grupy nie mają jednocześnie lekcji z danym nauczycielem, jeżeli tak, ogranicza odpowiednio pole wypełniania.
+    # * Program zaczyna wypełniać pierwszy przedmiot z listy przedmiotów dla pierwszego wczytanego rocznika (wypełnianie od rocznika najmniejszego do największego)
+    # * Sprawdza, w jakich innych (i czy) rocznikach dany przedmiot występuje, na tej postawie ogranicza wypelnianie.
+    # * Sprawdza, czy dany auczyciel uczy innych przemiotów, jeżeli tak, to sprawdza jakich, na tej podstawie sprawdza również, czy inne
+    # * roczniki/grupy nie mają jednocześnie lekcji z danym nauczycielem, jeżeli tak, ogranicza odpowiednio pole wypełniania.
     # *                                \/ 
-    # * Obszar wypełniania jest ograniczony poprzez podzielenie liczbę wszystkich godzin dla danej klasy na liczbę dni tygodnia.
+    # * Obszar wypełniania jest ograniczony poprzez podzielenie liczbę wszystkich godzin dla danego rocznika na liczbę dni tygodnia.
     # *                                \/
-    # * Program sprawdza listę nauczycieli uczących daną klasę -> dopasowywuje przedmiot do nauczyciela, który go uczy (dla danej klasy),
+    # * Program sprawdza listę nauczycieli uczących dany rocznik -> dopasowywuje przedmiot do nauczyciela, który go uczy (dla danego #     rocznika),
     #   ogranicza na podstawie nauczyciela, możliwy obszar wypełniania
     # *                                \/
     # * Program sprawdza, czy możliwe jest wypełnienie przedmiotu poniżej 3'ech lekcji tego samego dnia.
-    # * Jeżeli tak, program rozkłada wypełnianie na inne wolne dni. Jeżeli nie, to stara się rozłożyć te lekcje jak najdalej od siebie,
+    # * Jeżeli tak, program rozkłada wypełnianie na inne wolne godziny w inne dni. Jeżeli nie, to stara się rozłożyć te lekcje jak      #   najdalej od siebie,
     # * grupujac je w strukturze 2,1 lub 2,2.
     # *                                \/
     # * Wypełnianie:
     # * Program wypełnia wolne pola po kolei, od pierwszej możliwej lekcji (Realizuje to jednocześnie dawanie lekcji jak najwczesniej oraz
-    #   kończenie jak najwcześniej lekcji).
-    # * Kiedy zostaje zakończone wypelnianie dla pierwszej danej klasy, program przechodzi do klasy następnej (powtarza się cały poprzedni
-    #   proces (poza wczytywaniem json'ów, gdyż są one już wczytane))
+    #   kończenie jak najwcześniej lekcji) FIFO.
+    # * Kiedy zostaje zakończone wypelnianie dla pierwszego danego rocznika, program przechodzi do rocznika następnego (powtarza się cały #   poprzedni proces (poza wczytywaniem json'ów, gdyż są one już wczytane))
     
 # =========================================================================

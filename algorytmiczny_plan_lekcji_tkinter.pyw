@@ -78,7 +78,7 @@ class App(tk.Tk):
 
 ####################################
 
-# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     def calculate_plan(self):
         self.clear_window()
         
@@ -97,9 +97,7 @@ class App(tk.Tk):
         if not self.check_file_integrity(self.working_directory):
             messagebox.showerror("Błąd", "Integralność plików została naruszona, nie można kontynuować.")
             return False
-        
-
-        
+                
         teacher_availability = json.load(open(os.path.join(self.working_directory, "teacher_availability.json"), 'r', encoding='utf-8'))
         classes = json.load(open(os.path.join(self.working_directory, "classes.json"), 'r', encoding='utf-8'))
         teachers = json.load(open(os.path.join(self.working_directory, "teachers.json"), 'r', encoding='utf-8'))
@@ -135,7 +133,7 @@ class App(tk.Tk):
     def set_priority(self):
         pass # Work in progress
 
-# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
     def data_set_manager(self):
         self.clear_window()
