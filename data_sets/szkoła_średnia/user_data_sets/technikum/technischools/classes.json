@@ -3,73 +3,73 @@
         {
             "id": 1,
             "name": "1A",
-            "teachers": "",
+            "teachers": ["AD", "AT", "BM", "CJ", "GK", "JA", "JW/JT", "KoA", "MK", "MM", "MW", "OK", "SJ", "ŻJ", "ŻP"],
             "plan": {
-                "pon": [],
-                "wt": [],
-                "sr": [],
-                "czw": [],
-                "pt": []
+                "pon": [null, null, null, null, null, null, null, null],
+                "wt": [null, null, null, null, null, null, null, null],
+                "sr": [null, null, null, null, null, null, null, null],
+                "czw": [null, null, null, null, null, null, null, null],
+                "pt": [null, null, null, null, null, null, null, null]
             }
         },
         {
             "id": 2,
             "name": "2A",
-            "teachers": "",
+            "teachers": ["BałD", "BD", "BeJ", "BJ", "GK", "JA", "KoA", "MK", "MM", "MT", "MW", "MZ/JW", "OK", "OW", "SJ", "V", "WaM", "ŻJ", "ŻP"],
             "plan": {
-                "pon": [],
-                "wt": [],
-                "sr": [],
-                "czw": [],
-                "pt": []
+                "pon": [null, null, null, null, null, null, null, null],
+                "wt": [null, null, null, null, null, null, null, null],
+                "sr": [null, null, null, null, null, null, null, null],
+                "czw": [null, null, null, null, null, null, null, null],
+                "pt": [null, null, null, null, null, null, null, null]
             }
         },
         {
             "id": 3,
             "name": "3A",
-            "teachers": "",
+            "teachers": ["AM", "BD", "BeJ", "DW", "GK", "JA", "JR", "JW", "KoA", "MK", "MM", "MZ/JW", "MZg", "SP", "V", "WaM", "XW", "ŻJ", "ŻP", "ŁA", "ŁA"],
             "plan": {
-                "pon": [],
-                "wt": [],
-                "sr": [],
-                "czw": [],
-                "pt": []
+                "pon": [null, null, null, null, null, null, null, null],
+                "wt": [null, null, null, null, null, null, null, null],
+                "sr": [null, null, null, null, null, null, null, null],
+                "czw": [null, null, null, null, null, null, null, null],
+                "pt": [null, null, null, null, null, null, null, null]
             }
         },
         {
             "id": 4,
             "name": "3B",
-            "teachers": "",
+            "teachers": ["AM", "BD", "BeJ", "DW", "GK", "JA", "JR", "JW", "KoA", "MK", "MM", "MZ/JW", "MZg", "SP", "V", "WaM", "XW", "ŻJ", "ŻP", "ŁA", "ŁA"],
             "plan": {
-                "pon": [],
-                "wt": [],
-                "sr": [],
-                "czw": [],
-                "pt": []
+                "pon": [null, null, null, null, null, null, null, null],
+                "wt": [null, null, null, null, null, null, null, null],
+                "sr": [null, null, null, null, null, null, null, null],
+                "czw": [null, null, null, null, null, null, null, null],
+                "pt": [null, null, null, null, null, null, null, null]
             }
         },
         {
             "id": 5,
             "name": "4A",
-            "teachers": "",
+            "teachers": ["AT", "BD", "BałD", "BeJ", "DanB", "DW", "GK", "JW/JT", "KoA", "MM", "MZg", "SM", "V", "WaM", "ŻJ", "ŻP", "ŁA"],
             "plan": {
-                "pon": [],
-                "wt": [],
-                "sr": [],
-                "czw": [],
-                "pt": []
+                "pon": [null, null, null, null, null, null, null, null],
+                "wt": [null, null, null, null, null, null, null, null],
+                "sr": [null, null, null, null, null, null, null, null],
+                "czw": [null, null, null, null, null, null, null, null],
+                "pt": [null, null, null, null, null, null, null, null]
             }
         },
         {
             "id": 6,
             "name": "5A",
-            "teachers": "",
+            "teachers": ["AT", "BałD", "BeJ", "GL", "JW/JT", "MZg", "SJ", "XW", "ŁA"],
             "plan": {
-                "pon": [],
-                "wt": [],
-                "sr": [],
-                "czw": [],
-                "pt": []
+                "pon": [null, null, null, null, null, null, null, null],
+                "wt": [null, null, null, null, null, null, null, null],
+                "sr": [null, null, null, null, null, null, null, null],
+                "czw": [null, null, null, null, null, null, null, null],
+                "pt": [null, null, null, null, null, null, null, null]
             }
         }
     ]
