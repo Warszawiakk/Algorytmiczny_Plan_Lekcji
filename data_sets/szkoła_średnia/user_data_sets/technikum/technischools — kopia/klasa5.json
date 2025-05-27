@@ -1,0 +1,40 @@
+{
+    "subjects": [
+        {
+            "name": "AI",
+            "hours": 1
+        },
+        {
+            "name": "GW",
+            "hours": 1
+        },
+        {
+            "name": "JA",
+            "hours": 5
+        },
+        {
+            "name": "JC",
+            "hours": 2
+        },
+        {
+            "name": "JP",
+            "hours": 4
+        },
+        {
+            "name": "Matematyka",
+            "hours": 5
+        },
+        {
+            "name": "NODE -N",
+            "hours": 2
+        },
+        {
+            "name": "PN",
+            "hours": 2
+        },
+        {
+            "name": "WF",
+            "hours": 2
+        }
+    ]
+}
