@@ -3,7 +3,7 @@
         {
             "id": 1,
             "name": "1A",
-            "teachers": ["AD", "AT", "BM", "CJ", "GK", "JA", "JW/JT", "KoA", "MK", "MM", "MW", "OK", "SJ", "ŻJ", "ŻP"],
+            "teachers": ["AD", "AT", "BM", "CJ", "GK", "JA", "JW","JT", "KoA", "MK", "MM", "MW", "OK", "SJ", "ŻJ", "ŻP"],
             "plan": {
                 "pon": [null, null, null, null, null, null, null, null],
                 "wt": [null, null, null, null, null, null, null, null],
@@ -15,7 +15,7 @@
         {
             "id": 2,
             "name": "2A",
-            "teachers": ["BałD", "BD", "BeJ", "BJ", "GK", "JA", "KoA", "MK", "MM", "MT", "MW", "MZ/JW", "OK", "OW", "SJ", "V", "WaM", "ŻJ", "ŻP"],
+            "teachers": ["BałD", "BD", "BeJ", "BJ", "GK", "JA", "KoA", "MK", "MM", "MT", "MW", "MZ","JW", "OK", "OW", "SJ", "V", "WaM", "ŻJ", "ŻP"],
             "plan": {
                 "pon": [null, null, null, null, null, null, null, null],
                 "wt": [null, null, null, null, null, null, null, null],
@@ -27,7 +27,7 @@
         {
             "id": 3,
             "name": "3A",
-            "teachers": ["AM", "BD", "BeJ", "DW", "GK", "JA", "JR", "JW", "KoA", "MK", "MM", "MZ/JW", "MZg", "SP", "V", "WaM", "XW", "ŻJ", "ŻP", "ŁA", "ŁA"],
+            "teachers": ["AM", "BD", "BeJ", "DW", "GK", "JA", "BM", "JW", "KoA", "MK", "MM", "MZ", "ZgM", "SP", "V", "WaM", "XW", "ŻJ", "ŻP", "ŁA", "ŁA"],
             "plan": {
                 "pon": [null, null, null, null, null, null, null, null],
                 "wt": [null, null, null, null, null, null, null, null],
@@ -39,7 +39,7 @@
         {
             "id": 4,
             "name": "3B",
-            "teachers": ["AM", "BD", "BeJ", "DW", "GK", "JA", "JR", "JW", "KoA", "MK", "MM", "MZ/JW", "MZg", "SP", "V", "WaM", "XW", "ŻJ", "ŻP", "ŁA", "ŁA"],
+            "teachers": ["AM", "BD", "BeJ", "DW", "GK", "JA", "BM", "JW", "KoA", "MK", "MM", "MZ", "ZgM", "SP", "V", "WaM", "XW", "ŻJ", "ŻP", "ŁA", "ŁA"],
             "plan": {
                 "pon": [null, null, null, null, null, null, null, null],
                 "wt": [null, null, null, null, null, null, null, null],
@@ -51,7 +51,7 @@
         {
             "id": 5,
             "name": "4A",
-            "teachers": ["AT", "BD", "BałD", "BeJ", "DanB", "DW", "GK", "JW/JT", "KoA", "MM", "MZg", "SM", "V", "WaM", "ŻJ", "ŻP", "ŁA"],
+            "teachers": ["AT", "BD", "BałD", "BeJ", "DanB", "DW", "GK", "JW","JT", "KoA", "MM", "ZgM", "SM", "V", "WaM", "ŻJ", "ŻP", "ŁA"],
             "plan": {
                 "pon": [null, null, null, null, null, null, null, null],
                 "wt": [null, null, null, null, null, null, null, null],
@@ -63,7 +63,7 @@
         {
             "id": 6,
             "name": "5A",
-            "teachers": ["AT", "BałD", "BeJ", "GL", "JW/JT", "MZg", "SJ", "XW", "ŁA"],
+            "teachers": ["AT", "BałD", "BeJ", "GL", "JW","JT", "ZgM", "SJ", "XW", "ŁA"],
             "plan": {
                 "pon": [null, null, null, null, null, null, null, null],
                 "wt": [null, null, null, null, null, null, null, null],

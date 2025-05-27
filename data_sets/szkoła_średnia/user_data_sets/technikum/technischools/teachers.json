@@ -5,7 +5,7 @@
             "name": "Adam",
             "surname": "Janeczek",
             "subjects": [
-                "Matematyka"
+                "Matematyka", "GW"
             ]
         },
         {
@@ -21,7 +21,7 @@
             "name": "Dagmara",
             "surname": "Bałabaniak",
             "subjects": [
-                "JP"
+                "Język Polski"
             ]
         },
         {
@@ -29,7 +29,7 @@
             "name": "Katarzyna",
             "surname": "Gościniak",
             "subjects": [
-                "JP"
+                "Język Polski"
             ]
         },
         {
@@ -37,7 +37,7 @@
             "name": "Jacek",
             "surname": "Bednarz",
             "subjects": [
-                "JA"
+                "Jezyk Angielski"
             ]
         },
         {
@@ -45,7 +45,7 @@
             "name": "Matthias",
             "surname": "Mueller",
             "subjects": [
-                "JA"
+                "Język Angielski"
             ]
         },
         {
@@ -53,15 +53,15 @@
             "name": "Barbara",
             "surname": "Daskevic",
             "subjects": [
-                "JN"
+                "Język Niemiecki"
             ]
         },
         {
             "id": 8,
-            "name": "Typ",
-            "surname": "odHiszpański",
+            "name": "",
+            "surname": "V",
             "subjects": [
-                "JH"
+                "Język Hiszpański"
             ]
         },
         {
@@ -85,7 +85,7 @@
             "name": "Paweł",
             "surname": "Żukowski",
             "subjects": [
-                "Historia, EDB"
+                "Historia", "EDB", "GW"
             ]
         },
         {
@@ -93,7 +93,7 @@
             "name": "Maciej",
             "surname": "Waleszczyński",
             "subjects": [
-                "HIT, WOS"
+                "HIT", "WOS"
             ]
         },
         {
@@ -109,7 +109,7 @@
             "name": "Mateusz",
             "surname": "Kozłowski",
             "subjects": [
-                "Informatyka, Linux"
+                "Informatyka","Linux"
             ]
         },
         {
@@ -117,7 +117,7 @@
             "name": "Jakub",
             "surname": "Sawulski",
             "subjects": [
-                "PP"
+                "Podstawy Programowania"
             ]
         },
         {
@@ -133,7 +133,7 @@
             "name": "Bartłomiej",
             "surname": "Jasiński",
             "subjects": [
-                "PAI"
+                "Programowanie aplikacji internetowych"
             ]
         },
         {
@@ -158,6 +158,70 @@
             "surname": "Blazucki",
             "subjects": [
                 "Grafika Komputerowa"
+            ]
+        },
+        {
+            "id": 21,
+            "name": "Olga",
+            "surname": "Kłosiewicz",
+            "subjects": [
+                "Etyka", "Filozofia"
+            ]
+        },
+        {
+            "id": 22,
+            "name": "Wojciech",
+            "surname": "Oczkowski",
+            "subjects": [
+                "Projektowanie Oprogramowania"
+            ]
+        },
+        {
+            "id": 23,
+            "name": "Jacek",
+            "surname": "Wieczorek",
+            "subjects": [
+                "WF", "GW"
+            ]
+        },
+        {
+            "id": 24,
+            "name": "Joanna",
+            "surname": "Chwalisz",
+            "subjects": [
+                "Język Hiszpański"
+            ]
+        },
+        {
+            "id": 25,
+            "name": "Maciej",
+            "surname": "Zwierzchowski",
+            "subjects": [
+                "WF"
+            ]
+        },
+        {
+            "id": 26,
+            "name": "Patrycja",
+            "surname": "Sawicka",
+            "subjects": [
+                "Pam"
+            ]
+        },
+        {
+            "id": 27,
+            "name": "Tomasz",
+            "surname": "Jasiński",
+            "subjects": [
+                "WF"
+            ]
+        },
+        {
+            "id": 28,
+            "name": "Yixuan",
+            "surname": "Wang",
+            "subjects": [
+                "Język Chiński"
             ]
         }
     ]
