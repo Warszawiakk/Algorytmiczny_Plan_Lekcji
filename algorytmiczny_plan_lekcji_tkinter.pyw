@@ -121,11 +121,12 @@ class App(tk.Tk):
         def restrict_fields(plan, teacher, teacher_availability, day, hour):
             for availability in teacher_availability["data"][1:]:
                 if availability[0] == teacher:
+                    # Pobierz dostępne godziny dla danego dnia
                     available_hours = availability[day + 2].split(", ")
                     for time_range in available_hours:
-                        start, end = map(int, time_range.split("-"))
+                        start, end = map(lambda t: int(t.replace(":", "")), time_range.split("-"))
                         if start <= hour < end:
-                            plan[day][hour] = True  # Block field
+                            plan[day][hour] = True  # Zablokuj pole
                             return True
             return False
 
@@ -164,41 +165,41 @@ class App(tk.Tk):
                     subject_hours = subject["hours"]
 
                     teacher = next(
-                        (t for t in teachers["teachers"] if subject_name in t["subjects"] and t["surname"][0] + t["name"][0] in clas["teachers"]),
+                        (t for t in teachers["teachers"] if subject_name in t["subjects"] and t["name"] + " " + t["surname"] in clas["teachers"]),
                         None
                     )
                     if not teacher:
                         messagebox.showerror("Błąd", f"Brak nauczyciela dla przedmiotu {subject_name} w klasie {class_name}.")
                         return
 
-                    # Fill subject hours
+                    # Wypełnij godziny przedmiotu
                     hours_filled = 0
                     while hours_filled < subject_hours:
                         for day in plan.keys():
                             if hours_filled >= subject_hours:
                                 break
 
-                            # Count occurrences of the subject in the day
+                            # Licz wystąpienia przedmiotu w danym dniu
                             subject_count = sum(1 for h in plan[day] if h == subject_name)
                             if subject_count >= 3:
-                                continue  # Avoid more than 3 lessons of the same subject in one day
+                                continue  # Unikaj więcej niż 3 lekcji tego samego przedmiotu w jednym dniu
 
                             for hour in range(len(plan[day])):
-                                if plan[day][hour] is False:  # Field is available
-                                    if restrict_fields(plan, teacher["surname"][0] + teacher["name"][0], teacher_availability, day, hour):
-                                        continue  # Skip if field is restricted
+                                if plan[day][hour] is False:  # Pole jest dostępne
+                                    if restrict_fields(plan, teacher["name"] + " " + teacher["surname"], teacher_availability, day, hour):
+                                        continue  # Pomijaj, jeśli pole jest zablokowane
 
-                                    if is_teacher_busy(teacher["surname"][0] + teacher["name"][0], day, hour, classes):
-                                        continue  # Skip if teacher is busy
+                                    if is_teacher_busy(teacher["name"] + " " + teacher["surname"], day, hour, classes):
+                                        continue  # Pomijaj, jeśli nauczyciel jest zajęty
 
-                                    plan[day][hour] = subject_name  # Fill field
+                                    plan[day][hour] = subject_name  # Wypełnij pole
                                     hours_filled += 1
 
-                                    # Display live preview after filling each hour
+                                    # Wyświetl podgląd na żywo po wypełnieniu każdej godziny
                                     display_plan(plan, class_name)
                                     break
 
-        messagebox.showinfo("Sukces", "Plan został obliczony.")
+    messagebox.showinfo("Sukces", "Plan został obliczony.")
         
     def match_teacher_with_subject(class_name, subject_name, classes, teachers):
         # Znajdź klasę na podstawie nazwy
