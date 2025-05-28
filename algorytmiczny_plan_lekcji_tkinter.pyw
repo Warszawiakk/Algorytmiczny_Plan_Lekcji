@@ -1,3 +1,6 @@
+# Adam Henke 2025 all rights reserved
+# Algorytmiczny Układacz Planu alpha 1.0
+
 import os
 try:
     import tkinter as tk
@@ -75,33 +78,147 @@ class App(tk.Tk):
 ####################################
 # DO ZROBIENIA:
 # OBLICZANIE PLANU
+# Importowanie danych z Excela do JSON.
 
 ####################################
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     def calculate_plan(self):
         self.clear_window()
-        
+
         label = tk.Label(self, text="Obliczanie planu", font=("Arial", 16))
         label.pack(pady=10)
-        
-        label = tk.Label(self, text="Working data_set -> " + self.working_directory, font=("Arial", 5))
+
+        label = tk.Label(self, text="Working data_set -> " + self.working_directory, font=("Arial", 10))
         label.pack(pady=5)
-        
-        back = tk.Button(self, text="Powrót", command=self.main_menu)
-        back.place(x=10, y=10)
-        
-        set_priority_button = tk.Button(text="Ustaw priorytety przedmiotów", width=30, command=self.set_priority) # Work in progress
-        set_priority_button.pack(pady=5)
-        
-        if not self.check_file_integrity(self.working_directory):
-            messagebox.showerror("Błąd", "Integralność plików została naruszona, nie można kontynuować.")
+
+        # Dodanie przycisku "Wstecz"
+        back_button = tk.Button(self, text="Wstecz", width=20, command=self.main_menu)
+        back_button.pack(pady=10)
+
+        # Load required files
+        teacher_availability_path = os.path.join(self.working_directory, "teacher_availability.json")
+        classes_path = os.path.join(self.working_directory, "classes.json")
+        teachers_path = os.path.join(self.working_directory, "teachers.json")
+
+        if not all(os.path.exists(path) for path in [teacher_availability_path, classes_path, teachers_path]):
+            messagebox.showerror("Błąd", "Brak wymaganych plików do obliczenia planu.")
+            return
+
+        teacher_availability = json.load(open(teacher_availability_path, 'r', encoding='utf-8'))
+        classes = json.load(open(classes_path, 'r', encoding='utf-8'))
+        teachers = json.load(open(teachers_path, 'r', encoding='utf-8'))
+
+        # Get all class year files
+        class_year_files = [
+            f for f in os.listdir(self.working_directory) if f.startswith("klasa") and f.endswith(".json")
+        ]
+        if not class_year_files:
+            messagebox.showerror("Błąd", "Brak roczników do przetworzenia.")
+            return
+
+        # Helper function to restrict fields based on teacher availability
+        def restrict_fields(plan, teacher, teacher_availability, day, hour):
+            for availability in teacher_availability["data"][1:]:
+                if availability[0] == teacher:
+                    available_hours = availability[day + 2].split(", ")
+                    for time_range in available_hours:
+                        start, end = map(int, time_range.split("-"))
+                        if start <= hour < end:
+                            plan[day][hour] = True  # Block field
+                            return True
             return False
-                
-        teacher_availability = json.load(open(os.path.join(self.working_directory, "teacher_availability.json"), 'r', encoding='utf-8'))
-        classes = json.load(open(os.path.join(self.working_directory, "classes.json"), 'r', encoding='utf-8'))
-        teachers = json.load(open(os.path.join(self.working_directory, "teachers.json"), 'r', encoding='utf-8'))
+
+        # Helper function to check if a teacher is teaching another class at the same time
+        def is_teacher_busy(teacher, day, hour, classes):
+            for clas in classes["classes"]:
+                if teacher in clas["teachers"] and clas["plan"][day][hour] is True:
+                    return True
+            return False
+
+        # Helper function to display live preview of the plan
+        def display_plan(plan, class_name):
+            self.clear_window()
+
+            label = tk.Label(self, text=f"Plan dla klasy {class_name}", font=("Arial", 14))
+            label.pack(pady=10)
+
+            for day, hours in plan.items():
+                day_label = tk.Label(self, text=f"{day.capitalize()}: {', '.join(str(h) for h in hours)}")
+                day_label.pack()
+
+            self.update()  # Update the UI to reflect changes
+
+        # Process each class year
+        for class_year_file in class_year_files:
+            class_year_path = os.path.join(self.working_directory, class_year_file)
+            class_year_data = json.load(open(class_year_path, 'r', encoding='utf-8'))
+
+            for clas in classes["classes"]:
+                plan = clas["plan"]
+                class_name = clas["name"]
+                subjects = class_year_data["subjects"]
+
+                for subject in subjects:
+                    subject_name = subject["name"]
+                    subject_hours = subject["hours"]
+
+                    teacher = next(
+                        (t for t in teachers["teachers"] if subject_name in t["subjects"] and t["surname"][0] + t["name"][0] in clas["teachers"]),
+                        None
+                    )
+                    if not teacher:
+                        messagebox.showerror("Błąd", f"Brak nauczyciela dla przedmiotu {subject_name} w klasie {class_name}.")
+                        return
+
+                    # Fill subject hours
+                    hours_filled = 0
+                    while hours_filled < subject_hours:
+                        for day in plan.keys():
+                            if hours_filled >= subject_hours:
+                                break
+
+                            # Count occurrences of the subject in the day
+                            subject_count = sum(1 for h in plan[day] if h == subject_name)
+                            if subject_count >= 3:
+                                continue  # Avoid more than 3 lessons of the same subject in one day
+
+                            for hour in range(len(plan[day])):
+                                if plan[day][hour] is False:  # Field is available
+                                    if restrict_fields(plan, teacher["surname"][0] + teacher["name"][0], teacher_availability, day, hour):
+                                        continue  # Skip if field is restricted
+
+                                    if is_teacher_busy(teacher["surname"][0] + teacher["name"][0], day, hour, classes):
+                                        continue  # Skip if teacher is busy
+
+                                    plan[day][hour] = subject_name  # Fill field
+                                    hours_filled += 1
+
+                                    # Display live preview after filling each hour
+                                    display_plan(plan, class_name)
+                                    break
+
+        messagebox.showinfo("Sukces", "Plan został obliczony.")
         
+    def match_teacher_with_subject(class_name, subject_name, classes, teachers):
+        # Znajdź klasę na podstawie nazwy
+        class_data = next((clas for clas in classes["classes"] if clas["name"] == class_name), None)
+        if not class_data:
+            print(f"Klasa {class_name} nie została znaleziona.")
+            return None
+
+        # Pobierz nauczycieli przypisanych do klasy
+        class_teachers = class_data["teachers"]
+
+        # Iteruj przez nauczycieli i sprawdź, czy któryś uczy podanego przedmiotu
+        for teacher_initials in class_teachers:
+            teacher_data = next((teacher for teacher in teachers["teachers"] if teacher_initials == teacher["surname"][0] + teacher["name"][0]), None)
+            if teacher_data and subject_name in teacher_data["subjects"]:
+                return teacher_data
+
+        print(f"Brak nauczyciela dla przedmiotu {subject_name} w klasie {class_name}.")
+        return None
+    
         
     def check_file_integrity(working_directory):
         
@@ -125,7 +242,7 @@ class App(tk.Tk):
                 else:
                     pass
         if not at_least_one_class_year:
-            messagebox.showerror("Błąd", "Brak jakiegokolwiek pliku klasowego")
+            messagebox.showerror("Błąd", "Brak jakiegokolwiek pliku rocznika")
             return False
                     
         return True

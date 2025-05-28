@@ -1,7 +1,7 @@
 {
     "subjects": [
         {
-            "name": "BD",
+            "name": "Bazy Danych",
             "hours": 2
         },
         {
@@ -37,7 +37,7 @@
             "hours": 1
         },
         {
-            "name": "GK",
+            "name": "Grafika Komputerowa",
             "hours": 1
         },
         {
@@ -49,15 +49,15 @@
             "hours": 1
         },
         {
-            "name": "JA",
+            "name": "Język Angielski",
             "hours": 2
         },
         {
-            "name": "JH",
+            "name": "Język Chiński",
             "hours": 2
         },
         {
-            "name": "JP",
+            "name": "Język Polski",
             "hours": 3
         },
         {
@@ -69,11 +69,11 @@
             "hours": 3
         },
         {
-            "name": "PP",
+            "name": "Podstawy Programowania",
             "hours": 2
         },
         {
-            "name": "SI",
+            "name": "Strony Internetowe",
             "hours": 4
         },
         {

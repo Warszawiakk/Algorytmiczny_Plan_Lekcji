@@ -223,6 +223,14 @@
             "subjects": [
                 "Język Chiński"
             ]
+        },
+        {
+            "id": "29",
+            "name":"Adrian",
+            "surname":"Łukasik",
+            "subjects":[
+                "Bazy Danych"
+            ]
         }
     ]
 }
