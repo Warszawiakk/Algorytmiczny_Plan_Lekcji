@@ -15,6 +15,7 @@ except ImportError:
     print("Couldn't install json. Trying to install, else, try downloading them manually.")
     os.system('python -m pip install json')
 import json
+from tkinter import ttk
 
 
 from tkinter import messagebox, simpledialog
@@ -26,6 +27,7 @@ class App(tk.Tk):
         self.geometry("800x500")
         self.iconbitmap("icon.ico")
         self.working_directory = "data_sets/szkoła_średnia/user_data_sets/"
+        self.live_preview_enabled = tk.BooleanVar(value=True)  # Zmienna kontrolna dla podglądu na żywo
 
         self.main_menu()
 
@@ -96,6 +98,31 @@ class App(tk.Tk):
         back_button = tk.Button(self, text="Wstecz", width=20, command=self.main_menu)
         back_button.pack(pady=10)
 
+        # Dodanie przycisku do włączania/wyłączania podglądu na żywo
+        toggle_preview_button = tk.Checkbutton(
+            self,
+            text="Podgląd na żywo",
+            variable=self.live_preview_enabled,
+            onvalue=True,
+            offvalue=False
+        )
+        toggle_preview_button.pack(pady=5)
+
+        # Pasek postępu
+        progress_label = tk.Label(self, text="Postęp obliczania planu:")
+        progress_label.pack(pady=5)
+
+        progress_bar = ttk.Progressbar(self, orient="horizontal", length=400, mode="determinate")
+        progress_bar.pack(pady=10)
+
+        # Licznik operacji
+        progress_counter_label = tk.Label(self, text="0/0 operacji wykonanych")
+        progress_counter_label.pack(pady=5)
+
+        # Ramka dla podglądu na żywo
+        live_preview_frame = tk.Frame(self)
+        live_preview_frame.pack(pady=10, fill="both", expand=True)
+
         # Load required files
         teacher_availability_path = os.path.join(self.working_directory, "teacher_availability.json")
         classes_path = os.path.join(self.working_directory, "classes.json")
@@ -117,12 +144,31 @@ class App(tk.Tk):
             messagebox.showerror("Błąd", "Brak roczników do przetworzenia.")
             return
 
+        # Ustawienia paska postępu
+        total_tasks = len(classes["classes"]) * len(class_year_files) * 8 * 5  # 8 godzin dziennie, 5 dni w tygodniu
+        progress_bar["maximum"] = total_tasks
+        progress_value = 0
+
         # Helper function to restrict fields based on teacher availability
         def restrict_fields(plan, teacher, teacher_availability, day, hour):
+            # Mapowanie dni tygodnia na indeksy
+            day_to_index = {
+                "pon": 0,
+                "wt": 1,
+                "sr": 2,
+                "czw": 3,
+                "pt": 4
+            }
+
+            # Pobierz indeks dnia
+            day_index = day_to_index.get(day.lower())
+            if day_index is None:
+                print(f"Nieprawidłowy dzień: {day}")
+                return False
+
             for availability in teacher_availability["data"][1:]:
                 if availability[0] == teacher:
-                    # Pobierz dostępne godziny dla danego dnia
-                    available_hours = availability[day + 2].split(", ")
+                    available_hours = availability[day_index + 2].split(", ")
                     for time_range in available_hours:
                         start, end = map(lambda t: int(t.replace(":", "")), time_range.split("-"))
                         if start <= hour < end:
@@ -136,19 +182,6 @@ class App(tk.Tk):
                 if teacher in clas["teachers"] and clas["plan"][day][hour] is True:
                     return True
             return False
-
-        # Helper function to display live preview of the plan
-        def display_plan(plan, class_name):
-            self.clear_window()
-
-            label = tk.Label(self, text=f"Plan dla klasy {class_name}", font=("Arial", 14))
-            label.pack(pady=10)
-
-            for day, hours in plan.items():
-                day_label = tk.Label(self, text=f"{day.capitalize()}: {', '.join(str(h) for h in hours)}")
-                day_label.pack()
-
-            self.update()  # Update the UI to reflect changes
 
         # Process each class year
         for class_year_file in class_year_files:
@@ -174,7 +207,10 @@ class App(tk.Tk):
 
                     # Wypełnij godziny przedmiotu
                     hours_filled = 0
-                    while hours_filled < subject_hours:
+                    attempts = 0
+                    max_attempts = 1000  # Maksymalna liczba prób, aby zapobiec nieskończonej pętli
+
+                    while hours_filled < subject_hours and attempts < max_attempts:
                         for day in plan.keys():
                             if hours_filled >= subject_hours:
                                 break
@@ -185,6 +221,9 @@ class App(tk.Tk):
                                 continue  # Unikaj więcej niż 3 lekcji tego samego przedmiotu w jednym dniu
 
                             for hour in range(len(plan[day])):
+                                if hours_filled >= subject_hours:
+                                    break
+
                                 if plan[day][hour] is False:  # Pole jest dostępne
                                     if restrict_fields(plan, teacher["name"] + " " + teacher["surname"], teacher_availability, day, hour):
                                         continue  # Pomijaj, jeśli pole jest zablokowane
@@ -194,12 +233,32 @@ class App(tk.Tk):
 
                                     plan[day][hour] = subject_name  # Wypełnij pole
                                     hours_filled += 1
+                                    attempts = 0  # Zresetuj licznik prób przy udanym przypisaniu
 
-                                    # Wyświetl podgląd na żywo po wypełnieniu każdej godziny
-                                    display_plan(plan, class_name)
-                                    break
+                                    # Debugowanie
+                                    print(f"Wstawiono: {subject_name}, Klasa: {class_name}, Dzień: {day}, Godzina: {hour}")
+                                    print(f"Wypełnione godziny: {hours_filled}/{subject_hours}")
 
-    messagebox.showinfo("Sukces", "Plan został obliczony.")
+                                    # Wywołanie podglądu na żywo, jeśli jest włączony
+                                    if self.live_preview_enabled.get():
+                                        self.display_plan(plan, class_name, live_preview_frame)
+
+                                    # Aktualizacja paska postępu
+                                    progress_value += 1
+                                    progress_bar["value"] = progress_value
+                                    progress_counter_label.config(text=f"{progress_value}/{total_tasks} operacji wykonanych")
+                                    self.update_idletasks()
+
+                        attempts += 1  # Zwiększ licznik prób
+
+                    # Jeśli nie udało się przypisać wszystkich godzin, wyświetl ostrzeżenie
+                    if hours_filled < subject_hours:
+                        messagebox.showwarning(
+                            "Ostrzeżenie",
+                            f"Nie udało się przypisać wszystkich godzin dla przedmiotu {subject_name} w klasie {class_name}."
+                        )
+
+        messagebox.showinfo("Sukces", "Plan został obliczony.")
         
     def match_teacher_with_subject(class_name, subject_name, classes, teachers):
         # Znajdź klasę na podstawie nazwy
@@ -221,31 +280,12 @@ class App(tk.Tk):
         return None
     
         
-    def check_file_integrity(working_directory):
-        
-        required_files = [
-            "teacher_availability.json",
-            "classes.json",
-            "teachers.json"
-        ]
-
+    def check_file_integrity(self):
+        required_files = ["teacher_availability.json", "classes.json", "teachers.json"]
         for file in required_files:
-            if not os.path.exists(os.path.join(working_directory, file)):
+            if not os.path.exists(os.path.join(self.working_directory, file)):
                 messagebox.showerror("Błąd", f"Brak pliku: {file}")
                 return False
-        
-        at_least_one_class_year = False
-        for file in os.listdir(working_directory):
-            if os.path.isfile(file) == True:
-                if file.startswith("klasa") and file.endswith(".json"):
-                    at_least_one_class_year = True
-                    return True
-                else:
-                    pass
-        if not at_least_one_class_year:
-            messagebox.showerror("Błąd", "Brak jakiegokolwiek pliku rocznika")
-            return False
-                    
         return True
             
     def set_priority(self):
@@ -1048,6 +1088,23 @@ class App(tk.Tk):
                 json.dump({"teachers": teachers}, f, ensure_ascii=False, indent=4)
             messagebox.showinfo("Sukces", "Nauczyciel został usunięty")
         self.remove_class_teacher()
+
+    def display_plan(self, plan, class_name, live_preview_frame):
+        # Usuń poprzednią zawartość ramki
+        for widget in live_preview_frame.winfo_children():
+            widget.destroy()
+
+        # Dodaj nagłówek
+        label = tk.Label(live_preview_frame, text=f"Podgląd planu dla klasy: {class_name}", font=("Arial", 14))
+        label.pack(pady=10)
+
+        # Wyświetl plan
+        for day, hours in plan.items():
+            day_label = tk.Label(live_preview_frame, text=f"{day.capitalize()}: {', '.join(str(h) if h else '-' for h in hours)}")
+            day_label.pack()
+
+        # Odśwież interfejs użytkownika
+        self.update_idletasks()
 
 if __name__ == "__main__":
     app = App()

@@ -1,3 +1,6 @@
+# Adam Henke 2025 all rights reserved
+# Algorytmiczny Układacz Planu alpha 1.0
+
 import os
 try:
     import tkinter as tk
@@ -12,6 +15,7 @@ except ImportError:
     print("Couldn't install json. Trying to install, else, try downloading them manually.")
     os.system('python -m pip install json')
 import json
+from tkinter import ttk
 
 
 from tkinter import messagebox, simpledialog
@@ -23,6 +27,7 @@ class App(tk.Tk):
         self.geometry("800x500")
         self.iconbitmap("icon.ico")
         self.working_directory = "data_sets/szkoła_średnia/user_data_sets/"
+        self.live_preview_enabled = tk.BooleanVar(value=True)  # Zmienna kontrolna dla podglądu na żywo
 
         self.main_menu()
 
@@ -33,12 +38,10 @@ class App(tk.Tk):
     def create_scrollable_frame(self):
         self.clear_window()
 
-        # Create a canvas and a scrollbar
         canvas = tk.Canvas(self)
         scrollbar = tk.Scrollbar(self, orient="vertical", command=canvas.yview)
         scrollable_frame = tk.Frame(canvas)
 
-        # Configure the canvas
         scrollable_frame.bind(
             "<Configure>",
             lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
@@ -46,7 +49,6 @@ class App(tk.Tk):
         canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
 
-        # Pack the canvas and scrollbar
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
 
@@ -78,68 +80,218 @@ class App(tk.Tk):
 ####################################
 # DO ZROBIENIA:
 # OBLICZANIE PLANU
-# Edytowanie klas
+# Importowanie danych z Excela do JSON.
 
 ####################################
 
-# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     def calculate_plan(self):
         self.clear_window()
-        
+
         label = tk.Label(self, text="Obliczanie planu", font=("Arial", 16))
         label.pack(pady=10)
-        
-        label = tk.Label(self, text="Working data_set -> " + self.working_directory, font=("Arial", 5))
-        label.pack(pady=5)
-        
-        back = tk.Button(self, text="Powrót", command=self.main_menu)
-        back.place(x=10, y=10)
-        
-        set_priority_button = tk.Button(text="Ustaw priorytety przedmiotów", width=30, command=self.set_priority) # Work in progress
-        set_priority_button.pack(pady=5)
-        
-        if not self.check_file_integrity(self.working_directory):
-            messagebox.showerror("Błąd", "Integralność plików została naruszona, nie można kontynuować.")
-            return False
-        
-        # The mighty algoritm itself \/.
-        
-        teacher_availability = json.load(open(os.path.join(self.working_directory, "teacher_availability.json"), 'r', encoding='utf-8'))
-        classes = json.load(open(os.path.join(self.working_directory, "classes.json"), 'r', encoding='utf-8'))
-        teachers = json.load(open(os.path.join(self.working_directory, "teachers.json"), 'r', encoding='utf-8'))
-        
-        
-    def check_file_integrity(working_directory):
-        
-        required_files = [
-            "teacher_availability.json",
-            "classes.json",
-            "teachers.json"
-        ]
 
+        label = tk.Label(self, text="Working data_set -> " + self.working_directory, font=("Arial", 10))
+        label.pack(pady=5)
+
+        # Dodanie przycisku "Wstecz"
+        back_button = tk.Button(self, text="Wstecz", width=20, command=self.main_menu)
+        back_button.pack(pady=10)
+
+        # Dodanie przycisku do włączania/wyłączania podglądu na żywo
+        toggle_preview_button = tk.Checkbutton(
+            self,
+            text="Podgląd na żywo",
+            variable=self.live_preview_enabled,
+            onvalue=True,
+            offvalue=False
+        )
+        toggle_preview_button.pack(pady=5)
+
+        # Pasek postępu
+        progress_label = tk.Label(self, text="Postęp obliczania planu:")
+        progress_label.pack(pady=5)
+
+        progress_bar = ttk.Progressbar(self, orient="horizontal", length=400, mode="determinate")
+        progress_bar.pack(pady=10)
+
+        # Licznik operacji
+        progress_counter_label = tk.Label(self, text="0/0 operacji wykonanych")
+        progress_counter_label.pack(pady=5)
+
+        # Ramka dla podglądu na żywo
+        live_preview_frame = tk.Frame(self)
+        live_preview_frame.pack(pady=10, fill="both", expand=True)
+
+        # Load required files
+        teacher_availability_path = os.path.join(self.working_directory, "teacher_availability.json")
+        classes_path = os.path.join(self.working_directory, "classes.json")
+        teachers_path = os.path.join(self.working_directory, "teachers.json")
+
+        if not all(os.path.exists(path) for path in [teacher_availability_path, classes_path, teachers_path]):
+            messagebox.showerror("Błąd", "Brak wymaganych plików do obliczenia planu.")
+            return
+
+        teacher_availability = json.load(open(teacher_availability_path, 'r', encoding='utf-8'))
+        classes = json.load(open(classes_path, 'r', encoding='utf-8'))
+        teachers = json.load(open(teachers_path, 'r', encoding='utf-8'))
+
+        # Get all class year files
+        class_year_files = [
+            f for f in os.listdir(self.working_directory) if f.startswith("klasa") and f.endswith(".json")
+        ]
+        if not class_year_files:
+            messagebox.showerror("Błąd", "Brak roczników do przetworzenia.")
+            return
+
+        # Ustawienia paska postępu
+        total_tasks = len(classes["classes"]) * len(class_year_files) * 8 * 5  # 8 godzin dziennie, 5 dni w tygodniu
+        progress_bar["maximum"] = total_tasks
+        progress_value = 0
+
+        # Helper function to restrict fields based on teacher availability
+        def restrict_fields(plan, teacher, teacher_availability, day, hour):
+            # Mapowanie dni tygodnia na indeksy
+            day_to_index = {
+                "pon": 0,
+                "wt": 1,
+                "sr": 2,
+                "czw": 3,
+                "pt": 4
+            }
+
+            # Pobierz indeks dnia
+            day_index = day_to_index.get(day.lower())
+            if day_index is None:
+                print(f"Nieprawidłowy dzień: {day}")
+                return False
+
+            for availability in teacher_availability["data"][1:]:
+                if availability[0] == teacher:
+                    available_hours = availability[day_index + 2].split(", ")
+                    for time_range in available_hours:
+                        start, end = map(lambda t: int(t.replace(":", "")), time_range.split("-"))
+                        if start <= hour < end:
+                            plan[day][hour] = True  # Zablokuj pole
+                            return True
+            return False
+
+        # Helper function to check if a teacher is teaching another class at the same time
+        def is_teacher_busy(teacher, day, hour, classes):
+            for clas in classes["classes"]:
+                if teacher in clas["teachers"] and clas["plan"][day][hour] is True:
+                    return True
+            return False
+
+        # Process each class year
+        for class_year_file in class_year_files:
+            class_year_path = os.path.join(self.working_directory, class_year_file)
+            class_year_data = json.load(open(class_year_path, 'r', encoding='utf-8'))
+
+            for clas in classes["classes"]:
+                plan = clas["plan"]
+                class_name = clas["name"]
+                subjects = class_year_data["subjects"]
+
+                for subject in subjects:
+                    subject_name = subject["name"]
+                    subject_hours = subject["hours"]
+
+                    teacher = next(
+                        (t for t in teachers["teachers"] if subject_name in t["subjects"] and t["name"] + " " + t["surname"] in clas["teachers"]),
+                        None
+                    )
+                    if not teacher:
+                        messagebox.showerror("Błąd", f"Brak nauczyciela dla przedmiotu {subject_name} w klasie {class_name}.")
+                        return
+
+                    # Wypełnij godziny przedmiotu
+                    hours_filled = 0
+                    attempts = 0
+                    max_attempts = 1000  # Maksymalna liczba prób, aby zapobiec nieskończonej pętli
+
+                    while hours_filled < subject_hours and attempts < max_attempts:
+                        for day in plan.keys():
+                            if hours_filled >= subject_hours:
+                                break
+
+                            # Licz wystąpienia przedmiotu w danym dniu
+                            subject_count = sum(1 for h in plan[day] if h == subject_name)
+                            if subject_count >= 3:
+                                continue  # Unikaj więcej niż 3 lekcji tego samego przedmiotu w jednym dniu
+
+                            for hour in range(len(plan[day])):
+                                if hours_filled >= subject_hours:
+                                    break
+
+                                if plan[day][hour] is False:  # Pole jest dostępne
+                                    if restrict_fields(plan, teacher["name"] + " " + teacher["surname"], teacher_availability, day, hour):
+                                        continue  # Pomijaj, jeśli pole jest zablokowane
+
+                                    if is_teacher_busy(teacher["name"] + " " + teacher["surname"], day, hour, classes):
+                                        continue  # Pomijaj, jeśli nauczyciel jest zajęty
+
+                                    plan[day][hour] = subject_name  # Wypełnij pole
+                                    hours_filled += 1
+                                    attempts = 0  # Zresetuj licznik prób przy udanym przypisaniu
+
+                                    # Debugowanie
+                                    print(f"Wstawiono: {subject_name}, Klasa: {class_name}, Dzień: {day}, Godzina: {hour}")
+                                    print(f"Wypełnione godziny: {hours_filled}/{subject_hours}")
+
+                                    # Wywołanie podglądu na żywo, jeśli jest włączony
+                                    if self.live_preview_enabled.get():
+                                        self.display_plan(plan, class_name, live_preview_frame)
+
+                                    # Aktualizacja paska postępu
+                                    progress_value += 1
+                                    progress_bar["value"] = progress_value
+                                    progress_counter_label.config(text=f"{progress_value}/{total_tasks} operacji wykonanych")
+                                    self.update_idletasks()
+
+                        attempts += 1  # Zwiększ licznik prób
+
+                    # Jeśli nie udało się przypisać wszystkich godzin, wyświetl ostrzeżenie
+                    if hours_filled < subject_hours:
+                        messagebox.showwarning(
+                            "Ostrzeżenie",
+                            f"Nie udało się przypisać wszystkich godzin dla przedmiotu {subject_name} w klasie {class_name}."
+                        )
+
+        messagebox.showinfo("Sukces", "Plan został obliczony.")
+        
+    def match_teacher_with_subject(class_name, subject_name, classes, teachers):
+        # Znajdź klasę na podstawie nazwy
+        class_data = next((clas for clas in classes["classes"] if clas["name"] == class_name), None)
+        if not class_data:
+            print(f"Klasa {class_name} nie została znaleziona.")
+            return None
+
+        # Pobierz nauczycieli przypisanych do klasy
+        class_teachers = class_data["teachers"]
+
+        # Iteruj przez nauczycieli i sprawdź, czy któryś uczy podanego przedmiotu
+        for teacher_initials in class_teachers:
+            teacher_data = next((teacher for teacher in teachers["teachers"] if teacher_initials == teacher["surname"][0] + teacher["name"][0]), None)
+            if teacher_data and subject_name in teacher_data["subjects"]:
+                return teacher_data
+
+        print(f"Brak nauczyciela dla przedmiotu {subject_name} w klasie {class_name}.")
+        return None
+    
+        
+    def check_file_integrity(self):
+        required_files = ["teacher_availability.json", "classes.json", "teachers.json"]
         for file in required_files:
-            if not os.path.exists(os.path.join(working_directory, file)):
+            if not os.path.exists(os.path.join(self.working_directory, file)):
                 messagebox.showerror("Błąd", f"Brak pliku: {file}")
                 return False
-        
-        at_least_one_class_year = False
-        for file in os.listdir(working_directory):
-            if os.path.isfile(file) == True:
-                if file.startswith("klasa") and file.endswith(".json"):
-                    at_least_one_class_year = True
-                    return True
-                else:
-                    pass
-        if not at_least_one_class_year:
-            messagebox.showerror("Błąd", "Brak jakiegokolwiek pliku klasowego")
-            return False
-                    
         return True
             
     def set_priority(self):
         pass # Work in progress
 
-# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
     def data_set_manager(self):
         self.clear_window()
@@ -618,18 +770,16 @@ class App(tk.Tk):
         with open(path, 'r+', encoding='utf-8') as f:
             data = json.load(f)
             teachers = data.get("data", [])
-            if len(teachers) <= 1:  # Check if there are any teachers (excluding headers)
+            if len(teachers) <= 1: 
                 messagebox.showwarning("Brak danych", "Brak dostępności nauczycieli do edycji")
                 return
 
-        # Create a scrollable frame
         scrollable_frame = self.create_scrollable_frame()
 
         label = tk.Label(scrollable_frame, text="Edytor dostępności nauczycieli - wybierz nauczyciela", font=("Arial", 16))
         label.pack(pady=10)
 
-        # Display each teacher as a button
-        for teacher in teachers[1:]:  # Skip the header row
+        for teacher in teachers[1:]:
             teacher_info = f"{teacher[0]} - {teacher[1]}"
             tk.Button(
                 scrollable_frame,
@@ -687,9 +837,9 @@ class App(tk.Tk):
         label.pack(pady=10)
 
         options = [
-            ("Dodaj nauczyciela", self.add_teacher),
+            ("Dodaj nauczyciela", self.add_class_teacher),
             ("Modyfikuj nauczyciela", self.modify_teacher),
-            ("Usuń nauczyciela", self.remove_teacher),
+            ("Usuń nauczyciela", self.remove_class_teacher),
             ("Powrót", self.data_set_editor)
         ]
 
@@ -698,10 +848,94 @@ class App(tk.Tk):
 
     def edit_classes(self):
         self.clear_window()
-        label = tk.Label(self, text="Edytor klas - funkcja jeszcze niezaimplementowana")
-        label.pack(pady=50)
-        back = tk.Button(self, text="Wstecz", command=self.data_set_editor)
-        back.pack()
+        label = tk.Label(self, text="Edytor klas - wybierz klasę", font=("Arial", 16))
+        label.pack(pady=10)
+
+        path = os.path.join(self.working_directory, "classes.json")
+        if not os.path.exists(path):
+            messagebox.showerror("Błąd", "Plik classes.json nie istnieje.")
+            self.data_set_editor()
+            return
+
+        with open(path, 'r+', encoding='utf-8') as f:
+            data = json.load(f)
+            classes = data.get("classes", [])
+
+        if not classes:
+            messagebox.showwarning("Brak danych", "Brak klas do edycji.")
+            self.data_set_editor()
+            return
+
+        for class_data in classes:
+            tk.Button(
+                self,
+                text=class_data["name"],
+                width=40,
+                command=lambda c=class_data: self.edit_class_menu(c, classes, path)
+            ).pack(pady=5)
+
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.data_set_editor)
+        back_button.pack(pady=10)
+
+    def edit_class_menu(self, class_data, classes, path):
+        self.clear_window()
+
+        label = tk.Label(self, text=f"Edytor klasy: {class_data['name']}", font=("Arial", 16))
+        label.pack(pady=10)
+
+        options = [
+            ("Edytuj nazwę klasy", lambda: self.edit_class_name(class_data, classes, path)),
+            ("Edytuj nauczycieli klasy", lambda: self.edit_class_teachers(class_data, classes, path)),
+            ("Powrót", self.edit_classes)
+        ]
+
+        for (text, command) in options:
+            tk.Button(self, text=text, width=40, command=command).pack(pady=5)
+
+    def edit_class_name(self, class_data, classes, path):
+        new_name = simpledialog.askstring("Edytuj nazwę klasy", "Podaj nową nazwę klasy:", initialvalue=class_data["name"])
+        if new_name:
+            class_data["name"] = new_name
+            with open(path, 'w', encoding='utf-8') as f:
+                json.dump({"classes": classes}, f, ensure_ascii=False, indent=4)
+            messagebox.showinfo("Sukces", f"Nazwa klasy została zmieniona na {new_name}.")
+        self.edit_class_menu(class_data, classes, path)
+
+    def edit_class_teachers(self, class_data, classes, path):
+        self.clear_window()
+        
+        label = tk.Label(self, text=f"Edytuj nauczycieli klasy: {class_data['name']}", font=("Arial", 16))
+        label.pack(pady=10)
+
+        teachers = class_data.get("teachers", [])
+
+        def remove_class_teacher(t):
+            teachers.remove(t)
+            with open(path, 'w', encoding='utf-8') as f:
+                json.dump({"classes": classes}, f, ensure_ascii=False, indent=4)
+            messagebox.showinfo("Sukces", f"Nauczyciel {t} został usunięty.")
+            self.edit_class_teachers(class_data, classes, path)
+        
+        def add_class_teacher():
+            new_teacher = simpledialog.askstring("Dodaj nauczyciela", "Podaj nazwę nauczyciela:")
+            if new_teacher:
+                teachers.append(new_teacher)
+                with open(path, 'w', encoding='utf-8') as f:
+                    json.dump({"classes": classes}, f, ensure_ascii=False, indent=4)
+                messagebox.showinfo("Sukces", f"Nauczyciel {new_teacher} został dodany.")
+                self.edit_class_teachers(class_data, classes, path)
+
+        for teacher in teachers:
+            frame = tk.Frame(self)
+            frame.pack(pady=5)
+
+            tk.Label(frame, text=teacher, width=30, anchor="w").pack(side="left")
+            tk.Button(frame, text="Usuń", command=lambda t=teacher: remove_class_teacher(t)).pack(side="left", padx=5)
+
+        tk.Button(self, text="Dodaj nauczyciela", width=40, command=add_class_teacher).pack(pady=10)
+        tk.Button(self, text="Powrót", width=40, command=lambda: self.edit_class_menu(class_data, classes, path)).pack(pady=10)
+
+
 
     def modify_teacher(self):
         path = os.path.join(self.working_directory, "teachers.json")
@@ -739,7 +973,7 @@ class App(tk.Tk):
 
             messagebox.showinfo("Sukces", "Dane nauczyciela zostały zaktualizowane")
 
-    def add_teacher(self):
+    def add_class_teacher(self):
         if not os.path.exists(self.working_directory) or "user_data_sets" not in self.working_directory:
             messagebox.showwarning("Brak zestawu danych", "Najpierw wybierz zestaw danych.")
             return
@@ -774,7 +1008,7 @@ class App(tk.Tk):
 
         messagebox.showinfo("Sukces", f"Dodano nauczyciela {name} {surname}")    
 
-    def remove_teacher(self):
+    def remove_class_teacher(self):
         if not os.path.exists(self.working_directory) or "user_data_sets" not in self.working_directory:
             messagebox.showwarning("Brak zestawu danych", "Najpierw wybierz zestaw danych użytkownika.")
             return
@@ -811,7 +1045,7 @@ class App(tk.Tk):
 
         filter_value = simpledialog.askstring("Filtruj", f"Podaj wartość dla {filter_type}:")
         if not filter_value:
-            self.remove_teacher()
+            self.remove_class_teacher()
             return
 
         if filter_type == "id":
@@ -827,7 +1061,7 @@ class App(tk.Tk):
 
         if not filtered_teachers:
             messagebox.showwarning("Brak wyników", "Nie znaleziono nauczycieli spełniających kryteria")
-            self.remove_teacher()
+            self.remove_class_teacher()
             return
 
         for teacher in filtered_teachers:
@@ -836,13 +1070,13 @@ class App(tk.Tk):
                 self,
                 text=teacher_info,
                 width=60,
-                command=lambda t=teacher: self.confirm_remove_teacher(teachers, t)
+                command=lambda t=teacher: self.confirm_remove_class_teacher(teachers, t)
             ).pack(pady=5)
 
-        back_button = tk.Button(self, text="Powrót", width=40, command=self.remove_teacher)
+        back_button = tk.Button(self, text="Powrót", width=40, command=self.remove_class_teacher)
         back_button.pack(pady=10)
 
-    def confirm_remove_teacher(self, teachers, teacher):
+    def confirm_remove_class_teacher(self, teachers, teacher):
         confirm = messagebox.askyesno(
             "Potwierdzenie",
             f"Czy na pewno chcesz usunąć nauczyciela?\n\nID: {teacher['id']}\nImię: {teacher['name']}\nNazwisko: {teacher['surname']}\nPrzedmioty: {', '.join(teacher['subjects'])}"
@@ -853,7 +1087,24 @@ class App(tk.Tk):
             with open(path, 'w', encoding='utf-8') as f:
                 json.dump({"teachers": teachers}, f, ensure_ascii=False, indent=4)
             messagebox.showinfo("Sukces", "Nauczyciel został usunięty")
-        self.remove_teacher()
+        self.remove_class_teacher()
+
+    def display_plan(self, plan, class_name, live_preview_frame):
+        # Usuń poprzednią zawartość ramki
+        for widget in live_preview_frame.winfo_children():
+            widget.destroy()
+
+        # Dodaj nagłówek
+        label = tk.Label(live_preview_frame, text=f"Podgląd planu dla klasy: {class_name}", font=("Arial", 14))
+        label.pack(pady=10)
+
+        # Wyświetl plan
+        for day, hours in plan.items():
+            day_label = tk.Label(live_preview_frame, text=f"{day.capitalize()}: {', '.join(str(h) if h else '-' for h in hours)}")
+            day_label.pack()
+
+        # Odśwież interfejs użytkownika
+        self.update_idletasks()
 
 if __name__ == "__main__":
     app = App()
