@@ -37,7 +37,7 @@
             "name": "Jacek",
             "surname": "Bednarz",
             "subjects": [
-                "Jezyk Angielski"
+                "Jezyk Angielski", "Język Angielski Zawodowy"
             ]
         },
         {
@@ -53,7 +53,7 @@
             "name": "Barbara",
             "surname": "Daskevic",
             "subjects": [
-                "Język Niemiecki"
+                "Język Niemiecki", "Drugi Język Nowożytny"
             ]
         },
         {
@@ -61,7 +61,7 @@
             "name": "",
             "surname": "V",
             "subjects": [
-                "Język Hiszpański"
+                "Język Hiszpański", "Drugi Język Nowożytny"
             ]
         },
         {
@@ -125,7 +125,7 @@
             "name": "Adrian",
             "surname": "Trąbka",
             "subjects": [
-                "Zaw, AI"
+                "Zaw", "AI", "Strony Internetowe"
             ]
         },
         {
@@ -205,7 +205,7 @@
             "name": "Patrycja",
             "surname": "Sawicka",
             "subjects": [
-                "Pam"
+                "Pam(a)"
             ]
         },
         {
@@ -225,11 +225,35 @@
             ]
         },
         {
-            "id": "29",
+            "id": 29,
             "name":"Adrian",
             "surname":"Łukasik",
             "subjects":[
-                "Bazy Danych"
+                "Bazy Danych", "Pn", "TIDA"
+            ]
+        },
+        {
+            "id": 30,
+            "name": "Aleksandra",
+            "surname": "Muzal-Gil",
+            "subjects":[
+                "Język Chiński"
+            ]
+        },
+        {
+            "id": 31,
+            "name": "Michał",
+            "surname": "Taborowski",
+            "subjects": [
+                "Programowanie Obiektowe"
+            ]
+        },
+        {
+            "id":32,
+            "name": "M",
+            "surname": "A",
+            "subjects":[
+                "Zzp"
             ]
         }
     ]

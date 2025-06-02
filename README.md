@@ -32,7 +32,7 @@ muszą być obok siebie, nauczyciel nie może prowadzić więcej niż 5 lekcji w
     # * \\ Zostaje wczytany json 'teachers'
     # * \\ Zostaje wczytany json 'teacher_availability'
     # *                     \/
-    # * Program zaczyna wypełniać pierwszy przedmiot z listy przedmiotów dla pierwszego wczytanego rocznika (wypełnianie od rocznika najmniejszego do największego)
+    # * Program zaczyna wypełniać pierwszy przedmiot z listy przedmiotów dla pierwszego wczytanego rocznika (wypełnianie od rocznika #      najmniejszego do największego)
     # * Sprawdza, w jakich innych (i czy) rocznikach dany przedmiot występuje, na tej postawie ogranicza wypelnianie.
     # * Sprawdza, czy dany auczyciel uczy innych przemiotów, jeżeli tak, to sprawdza jakich, na tej podstawie sprawdza również, czy inne
     # * roczniki/grupy nie mają jednocześnie lekcji z danym nauczycielem, jeżeli tak, ogranicza odpowiednio pole wypełniania.
@@ -52,3 +52,8 @@ muszą być obok siebie, nauczyciel nie może prowadzić więcej niż 5 lekcji w
     # * Kiedy zostaje zakończone wypelnianie dla pierwszego danego rocznika, program przechodzi do rocznika następnego (powtarza się cały #   poprzedni proces (poza wczytywaniem json'ów, gdyż są one już wczytane))
     
 # =========================================================================
+
+classes.json:
+    false = wolne pole
+    true = pole zablokowane
+    R-{false,true} = pole zajęte

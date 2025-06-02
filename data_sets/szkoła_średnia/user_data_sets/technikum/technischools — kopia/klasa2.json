@@ -25,7 +25,7 @@
             "hours": 1
         },
         {
-            "name": "GK",
+            "name": "Grafika Komputerowa",
             "hours": 1
         },
         {
@@ -41,19 +41,19 @@
             "hours": 1
         },
         {
-            "name": "JA",
+            "name": "Język Angielski",
             "hours": 2
         },
         {
-            "name": "JAZ",
+            "name": "Język Angielski Zawodowy",
             "hours": 1
         },
         {
-            "name": "Second_JON",
+            "name": "Drugi Język Nowożytny",
             "hours": 2
         },
         {
-            "name": "JP",
+            "name": "Język Polski",
             "hours": 3
         },
         {
@@ -61,19 +61,19 @@
             "hours": 3
         },
         {
-            "name": "PAI",
+            "name": "Programowanie aplikacji internetowych",
             "hours": 4
         },
         {
-            "name": "PP",
+            "name": "Podstawy Programowania",
             "hours": 2
         },
         {
-            "name": "POb",
+            "name": "Programowanie Obiektowe",
             "hours": 2
         },
         {
-            "name": "PO",
+            "name": "Projektowanie Oprogramowania",
             "hours": 2
         },
         {

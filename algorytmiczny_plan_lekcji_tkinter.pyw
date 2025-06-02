@@ -188,14 +188,19 @@ class App(tk.Tk):
             class_year_path = os.path.join(self.working_directory, class_year_file)
             class_year_data = json.load(open(class_year_path, 'r', encoding='utf-8'))
 
-            for clas in classes["classes"]:
+            for clas_index, clas in enumerate(classes["classes"], start=1):
+                # Dopasuj plik klasy na podstawie indeksu
+                expected_class_file = f"klasa{clas_index}.json"
+                if class_year_file != expected_class_file:
+                    continue  # Pomijaj pliki, które nie pasują do bieżącej klasy
+
                 plan = clas["plan"]
                 class_name = clas["name"]
                 subjects = class_year_data["subjects"]
 
                 for subject in subjects:
                     subject_name = subject["name"]
-                    subject_hours = subject["hours"]
+                    subject_hours = int(subject["hours"])  # Konwersja na liczbę całkowitą
 
                     teacher = next(
                         (t for t in teachers["teachers"] if subject_name in t["subjects"] and t["name"] + " " + t["surname"] in clas["teachers"]),
@@ -215,39 +220,73 @@ class App(tk.Tk):
                             if hours_filled >= subject_hours:
                                 break
 
-                            # Licz wystąpienia przedmiotu w danym dniu
-                            subject_count = sum(1 for h in plan[day] if h == subject_name)
-                            if subject_count >= 3:
-                                continue  # Unikaj więcej niż 3 lekcji tego samego przedmiotu w jednym dniu
+                            # Specjalna logika dla "Etyki"
+                            if subject_name.lower() == "etyka":
+                                for hour in range(len(plan[day])):
+                                    if hour > 0:  # Etyka musi być na początku dnia
+                                        break
 
-                            for hour in range(len(plan[day])):
-                                if hours_filled >= subject_hours:
-                                    break
+                                    if plan[day][hour] is False:  # Pole jest dostępne
+                                        if restrict_fields(plan, teacher["name"] + " " + teacher["surname"], teacher_availability, day, hour):
+                                            continue  # Pomijaj, jeśli pole jest zablokowane
 
-                                if plan[day][hour] is False:  # Pole jest dostępne
-                                    if restrict_fields(plan, teacher["name"] + " " + teacher["surname"], teacher_availability, day, hour):
-                                        continue  # Pomijaj, jeśli pole jest zablokowane
+                                        if is_teacher_busy(teacher["name"] + " " + teacher["surname"], day, hour, classes):
+                                            continue  # Pomijaj, jeśli nauczyciel jest zajęty
 
-                                    if is_teacher_busy(teacher["name"] + " " + teacher["surname"], day, hour, classes):
-                                        continue  # Pomijaj, jeśli nauczyciel jest zajęty
+                                        plan[day][hour] = subject_name  # Wypełnij pole
+                                        hours_filled += 1
+                                        attempts = 0  # Zresetuj licznik prób przy udanym przypisaniu
 
-                                    plan[day][hour] = subject_name  # Wypełnij pole
-                                    hours_filled += 1
-                                    attempts = 0  # Zresetuj licznik prób przy udanym przypisaniu
+                                        # Debugowanie
+                                        print(f"Wstawiono: {subject_name}, Klasa: {class_name}, Dzień: {day}, Godzina: {hour}")
+                                        print(f"Wypełnione godziny: {hours_filled}/{subject_hours}")
 
-                                    # Debugowanie
-                                    print(f"Wstawiono: {subject_name}, Klasa: {class_name}, Dzień: {day}, Godzina: {hour}")
-                                    print(f"Wypełnione godziny: {hours_filled}/{subject_hours}")
+                                        # Wywołanie podglądu na żywo, jeśli jest włączony
+                                        if self.live_preview_enabled.get():
+                                            self.display_plan(plan, class_name, live_preview_frame)
 
-                                    # Wywołanie podglądu na żywo, jeśli jest włączony
-                                    if self.live_preview_enabled.get():
-                                        self.display_plan(plan, class_name, live_preview_frame)
+                                        # Aktualizacja paska postępu
+                                        progress_value += 1
+                                        progress_bar["value"] = progress_value
+                                        progress_counter_label.config(text=f"{progress_value}/{total_tasks} operacji wykonanych")
+                                        self.update_idletasks()
 
-                                    # Aktualizacja paska postępu
-                                    progress_value += 1
-                                    progress_bar["value"] = progress_value
-                                    progress_counter_label.config(text=f"{progress_value}/{total_tasks} operacji wykonanych")
-                                    self.update_idletasks()
+                                        break  # Przerwij pętlę godzin w danym dniu, aby przejść do kolejnego dnia
+
+                            # Standardowa logika dla innych przedmiotów
+                            else:
+                                subject_count = sum(1 for h in plan[day] if h == subject_name)
+                                if subject_count >= 3:
+                                    continue  # Unikaj więcej niż 3 lekcji tego samego przedmiotu w jednym dniu
+
+                                for hour in range(len(plan[day])):
+                                    if hours_filled >= subject_hours:
+                                        break
+
+                                    if plan[day][hour] is False:  # Pole jest dostępne
+                                        if restrict_fields(plan, teacher["name"] + " " + teacher["surname"], teacher_availability, day, hour):
+                                            continue  # Pomijaj, jeśli pole jest zablokowane
+
+                                        if is_teacher_busy(teacher["name"] + " " + teacher["surname"], day, hour, classes):
+                                            continue  # Pomijaj, jeśli nauczyciel jest zajęty
+
+                                        plan[day][hour] = subject_name  # Wypełnij pole
+                                        hours_filled += 1
+                                        attempts = 0  # Zresetuj licznik prób przy udanym przypisaniu
+
+                                        # Debugowanie
+                                        print(f"Wstawiono: {subject_name}, Klasa: {class_name}, Dzień: {day}, Godzina: {hour}")
+                                        print(f"Wypełnione godziny: {hours_filled}/{subject_hours}")
+
+                                        # Wywołanie podglądu na żywo, jeśli jest włączony
+                                        if self.live_preview_enabled.get():
+                                            self.display_plan(plan, class_name, live_preview_frame)
+
+                                        # Aktualizacja paska postępu
+                                        progress_value += 1
+                                        progress_bar["value"] = progress_value
+                                        progress_counter_label.config(text=f"{progress_value}/{total_tasks} operacji wykonanych")
+                                        self.update_idletasks()
 
                         attempts += 1  # Zwiększ licznik prób
 
