@@ -1,6 +1,15 @@
 # Adam Henke 2025 all rights reserved
 # Algorytmiczny Układacz Planu alpha 1.0
 
+def load_json(path):
+    """Load JSON data from a file."""
+    try:
+        with open(path, 'r', encoding='utf-8') as file:
+            return json.load(file)
+    except Exception as e:
+        messagebox.showerror("Błąd", f"Nie udało się załadować pliku {path}: {e}")
+        return None
+
 import os
 try:
     import tkinter as tk
@@ -17,6 +26,7 @@ except ImportError:
 import json
 from tkinter import ttk
 
+import random
 
 from tkinter import messagebox, simpledialog
 
@@ -28,6 +38,7 @@ class App(tk.Tk):
         self.iconbitmap("icon.ico")
         self.working_directory = "data_sets/szkoła_średnia/user_data_sets/"
         self.live_preview_enabled = tk.BooleanVar(value=True)  # Zmienna kontrolna dla podglądu na żywo
+        self.progress_bar_enabled = tk.BooleanVar(value=True)  # Zmienna kontrolna dla paska postępu
 
         self.main_menu()
 
@@ -88,17 +99,16 @@ class App(tk.Tk):
     def calculate_plan(self):
         self.clear_window()
 
+        # UI Elements
         label = tk.Label(self, text="Obliczanie planu", font=("Arial", 16))
         label.pack(pady=10)
 
         label = tk.Label(self, text="Working data_set -> " + self.working_directory, font=("Arial", 10))
         label.pack(pady=5)
 
-        # Dodanie przycisku "Wstecz"
         back_button = tk.Button(self, text="Wstecz", width=20, command=self.main_menu)
         back_button.pack(pady=10)
 
-        # Dodanie przycisku do włączania/wyłączania podglądu na żywo
         toggle_preview_button = tk.Checkbutton(
             self,
             text="Podgląd na żywo",
@@ -108,18 +118,15 @@ class App(tk.Tk):
         )
         toggle_preview_button.pack(pady=5)
 
-        # Pasek postępu
         progress_label = tk.Label(self, text="Postęp obliczania planu:")
         progress_label.pack(pady=5)
 
         progress_bar = ttk.Progressbar(self, orient="horizontal", length=400, mode="determinate")
         progress_bar.pack(pady=10)
 
-        # Licznik operacji
         progress_counter_label = tk.Label(self, text="0/0 operacji wykonanych")
         progress_counter_label.pack(pady=5)
 
-        # Ramka dla podglądu na żywo
         live_preview_frame = tk.Frame(self)
         live_preview_frame.pack(pady=10, fill="both", expand=True)
 
@@ -144,26 +151,16 @@ class App(tk.Tk):
             messagebox.showerror("Błąd", "Brak roczników do przetworzenia.")
             return
 
-        # Ustawienia paska postępu
-        total_tasks = len(classes["classes"]) * len(class_year_files) * 8 * 5  # 8 godzin dziennie, 5 dni w tygodniu
+        # Progress bar setup
+        total_tasks = len(classes["classes"]) * len(class_year_files) * 8 * 5  # 8 hours/day, 5 days/week
         progress_bar["maximum"] = total_tasks
         progress_value = 0
 
-        # Helper function to restrict fields based on teacher availability
+        # Helper functions
         def restrict_fields(plan, teacher, teacher_availability, day, hour):
-            # Mapowanie dni tygodnia na indeksy
-            day_to_index = {
-                "pon": 0,
-                "wt": 1,
-                "sr": 2,
-                "czw": 3,
-                "pt": 4
-            }
-
-            # Pobierz indeks dnia
+            day_to_index = {"pon": 0, "wt": 1, "sr": 2, "czw": 3, "pt": 4}
             day_index = day_to_index.get(day.lower())
             if day_index is None:
-                print(f"Nieprawidłowy dzień: {day}")
                 return False
 
             for availability in teacher_availability["data"][1:]:
@@ -172,11 +169,10 @@ class App(tk.Tk):
                     for time_range in available_hours:
                         start, end = map(lambda t: int(t.replace(":", "")), time_range.split("-"))
                         if start <= hour < end:
-                            plan[day][hour] = True  # Zablokuj pole
+                            plan[day][hour] = True
                             return True
             return False
 
-        # Helper function to check if a teacher is teaching another class at the same time
         def is_teacher_busy(teacher, day, hour, classes):
             for clas in classes["classes"]:
                 if teacher in clas["teachers"] and clas["plan"][day][hour] is True:
@@ -189,10 +185,9 @@ class App(tk.Tk):
             class_year_data = json.load(open(class_year_path, 'r', encoding='utf-8'))
 
             for clas_index, clas in enumerate(classes["classes"], start=1):
-                # Dopasuj plik klasy na podstawie indeksu
                 expected_class_file = f"klasa{clas_index}.json"
                 if class_year_file != expected_class_file:
-                    continue  # Pomijaj pliki, które nie pasują do bieżącej klasy
+                    continue
 
                 plan = clas["plan"]
                 class_name = clas["name"]
@@ -200,7 +195,7 @@ class App(tk.Tk):
 
                 for subject in subjects:
                     subject_name = subject["name"]
-                    subject_hours = int(subject["hours"])  # Konwersja na liczbę całkowitą
+                    subject_hours = int(subject["hours"])
 
                     teacher = next(
                         (t for t in teachers["teachers"] if subject_name in t["subjects"] and t["name"] + " " + t["surname"] in clas["teachers"]),
@@ -210,87 +205,37 @@ class App(tk.Tk):
                         messagebox.showerror("Błąd", f"Brak nauczyciela dla przedmiotu {subject_name} w klasie {class_name}.")
                         return
 
-                    # Wypełnij godziny przedmiotu
                     hours_filled = 0
                     attempts = 0
-                    max_attempts = 1000  # Maksymalna liczba prób, aby zapobiec nieskończonej pętli
+                    max_attempts = 1000
 
                     while hours_filled < subject_hours and attempts < max_attempts:
                         for day in plan.keys():
                             if hours_filled >= subject_hours:
                                 break
 
-                            # Specjalna logika dla "Etyki"
-                            if subject_name.lower() == "etyka":
-                                for hour in range(len(plan[day])):
-                                    if hour > 0:  # Etyka musi być na początku dnia
-                                        break
+                            for hour in range(len(plan[day])):
+                                if plan[day][hour] is False:
+                                    if restrict_fields(plan, teacher["name"] + " " + teacher["surname"], teacher_availability, day, hour):
+                                        continue
+                                    if is_teacher_busy(teacher["name"] + " " + teacher["surname"], day, hour, classes):
+                                        continue
 
-                                    if plan[day][hour] is False:  # Pole jest dostępne
-                                        if restrict_fields(plan, teacher["name"] + " " + teacher["surname"], teacher_availability, day, hour):
-                                            continue  # Pomijaj, jeśli pole jest zablokowane
+                                    plan[day][hour] = subject_name
+                                    hours_filled += 1
+                                    attempts = 0
 
-                                        if is_teacher_busy(teacher["name"] + " " + teacher["surname"], day, hour, classes):
-                                            continue  # Pomijaj, jeśli nauczyciel jest zajęty
+                                    if self.live_preview_enabled.get():
+                                        self.display_plan(plan, class_name, live_preview_frame)
 
-                                        plan[day][hour] = subject_name  # Wypełnij pole
-                                        hours_filled += 1
-                                        attempts = 0  # Zresetuj licznik prób przy udanym przypisaniu
+                                    progress_value += 1
+                                    progress_bar["value"] = progress_value
+                                    progress_counter_label.config(text=f"{progress_value}/{total_tasks} operacji wykonanych")
+                                    self.update_idletasks()
+                                    break
 
-                                        # Debugowanie
-                                        print(f"Wstawiono: {subject_name}, Klasa: {class_name}, Dzień: {day}, Godzina: {hour}")
-                                        print(f"Wypełnione godziny: {hours_filled}/{subject_hours}")
+                        attempts += 1
 
-                                        # Wywołanie podglądu na żywo, jeśli jest włączony
-                                        if self.live_preview_enabled.get():
-                                            self.display_plan(plan, class_name, live_preview_frame)
-
-                                        # Aktualizacja paska postępu
-                                        progress_value += 1
-                                        progress_bar["value"] = progress_value
-                                        progress_counter_label.config(text=f"{progress_value}/{total_tasks} operacji wykonanych")
-                                        self.update_idletasks()
-
-                                        break  # Przerwij pętlę godzin w danym dniu, aby przejść do kolejnego dnia
-
-                            # Standardowa logika dla innych przedmiotów
-                            else:
-                                subject_count = sum(1 for h in plan[day] if h == subject_name)
-                                if subject_count >= 3:
-                                    continue  # Unikaj więcej niż 3 lekcji tego samego przedmiotu w jednym dniu
-
-                                for hour in range(len(plan[day])):
-                                    if hours_filled >= subject_hours:
-                                        break
-
-                                    if plan[day][hour] is False:  # Pole jest dostępne
-                                        if restrict_fields(plan, teacher["name"] + " " + teacher["surname"], teacher_availability, day, hour):
-                                            continue  # Pomijaj, jeśli pole jest zablokowane
-
-                                        if is_teacher_busy(teacher["name"] + " " + teacher["surname"], day, hour, classes):
-                                            continue  # Pomijaj, jeśli nauczyciel jest zajęty
-
-                                        plan[day][hour] = subject_name  # Wypełnij pole
-                                        hours_filled += 1
-                                        attempts = 0  # Zresetuj licznik prób przy udanym przypisaniu
-
-                                        # Debugowanie
-                                        print(f"Wstawiono: {subject_name}, Klasa: {class_name}, Dzień: {day}, Godzina: {hour}")
-                                        print(f"Wypełnione godziny: {hours_filled}/{subject_hours}")
-
-                                        # Wywołanie podglądu na żywo, jeśli jest włączony
-                                        if self.live_preview_enabled.get():
-                                            self.display_plan(plan, class_name, live_preview_frame)
-
-                                        # Aktualizacja paska postępu
-                                        progress_value += 1
-                                        progress_bar["value"] = progress_value
-                                        progress_counter_label.config(text=f"{progress_value}/{total_tasks} operacji wykonanych")
-                                        self.update_idletasks()
-
-                        attempts += 1  # Zwiększ licznik prób
-
-                    # Jeśli nie udało się przypisać wszystkich godzin, wyświetl ostrzeżenie
                     if hours_filled < subject_hours:
                         messagebox.showwarning(
                             "Ostrzeżenie",
@@ -298,37 +243,7 @@ class App(tk.Tk):
                         )
 
         messagebox.showinfo("Sukces", "Plan został obliczony.")
-        
-    def match_teacher_with_subject(class_name, subject_name, classes, teachers):
-        # Znajdź klasę na podstawie nazwy
-        class_data = next((clas for clas in classes["classes"] if clas["name"] == class_name), None)
-        if not class_data:
-            print(f"Klasa {class_name} nie została znaleziona.")
-            return None
 
-        # Pobierz nauczycieli przypisanych do klasy
-        class_teachers = class_data["teachers"]
-
-        # Iteruj przez nauczycieli i sprawdź, czy któryś uczy podanego przedmiotu
-        for teacher_initials in class_teachers:
-            teacher_data = next((teacher for teacher in teachers["teachers"] if teacher_initials == teacher["surname"][0] + teacher["name"][0]), None)
-            if teacher_data and subject_name in teacher_data["subjects"]:
-                return teacher_data
-
-        print(f"Brak nauczyciela dla przedmiotu {subject_name} w klasie {class_name}.")
-        return None
-    
-        
-    def check_file_integrity(self):
-        required_files = ["teacher_availability.json", "classes.json", "teachers.json"]
-        for file in required_files:
-            if not os.path.exists(os.path.join(self.working_directory, file)):
-                messagebox.showerror("Błąd", f"Brak pliku: {file}")
-                return False
-        return True
-            
-    def set_priority(self):
-        pass # Work in progress
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -612,10 +527,6 @@ class App(tk.Tk):
 
     def edit_class_year_subjects(self, class_year):
         self.clear_window()
-
-        label = tk.Label(self, text=f"Edytor przedmiotów dla rocznika: {class_year.replace('.json', '')}", font=("Arial", 16))
-        label.pack(pady=10)
-
         path = os.path.join(self.working_directory, class_year)
         if not os.path.exists(path):
             messagebox.showerror("Błąd", f"Plik {class_year} nie istnieje.")
@@ -1144,6 +1055,25 @@ class App(tk.Tk):
 
         # Odśwież interfejs użytkownika
         self.update_idletasks()
+
+def validate_json(data, required_keys):
+    if not isinstance(data, dict):
+        return False
+    return all(key in data for key in required_keys)
+
+def load_and_validate_json(path, required_keys):
+    if not os.path.exists(path):
+        messagebox.showerror("Błąd", f"Plik {path} nie istnieje.")
+        return None
+    try:
+        data = json.load(open(path, 'r', encoding='utf-8'))
+        if not validate_json(data, required_keys):
+            messagebox.showerror("Błąd", f"Plik {path} ma nieprawidłową strukturę.")
+            return None
+        return data
+    except Exception as e:
+        messagebox.showerror("Błąd", f"Nie udało się załadować pliku {path}: {e}")
+        return None
 
 if __name__ == "__main__":
     app = App()

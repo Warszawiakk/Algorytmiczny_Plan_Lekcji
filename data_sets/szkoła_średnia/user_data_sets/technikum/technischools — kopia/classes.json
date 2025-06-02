@@ -103,43 +103,7 @@
                 "pt": [false, false, false, false, false, false, false, false]
             }
         },
-        {
-            "id": 4,
-            "name": "3B",
-            "teachers": [
-                "Adam Mueller",
-                "Jacek Bednarz",
-                "Barbara Daskevic",
-                "Dariusz Wardecki",
-                "Katarzyna Gościniak",
-                "Adam Janeczek",
-                "Maciej Blazucki",
-                "Jacek Wieczorek",
-                "Aleksandra Kołodziej",
-                "Mateusz Kozłowski",
-                "Matthias Mueller",
-                "Maciej Zwierzchowski",
-                "Małgorzata Zgiet-Niewiadomska",
-                "Patrycja Sawicka",
-                "Yixuan Wang",
-                "Maciej Waleszczyński",
-                "Joanna Żabolicka",
-                "Paweł Żukowski",
-                "Adrian Łukasik",
-                "Marzena Wolska",
-                "Patrycja Sawicka",
-                "Adrian Łukasik",
-                "Michał Taborowski",
-                "M A"
-            ],
-            "plan": {
-                "pon": [false, false, false, false, false, false, false, false],
-                "wt": [false, false, false, false, false, false, false, false],
-                "sr": [false, false, false, false, false, false, false, false],
-                "czw": [false, false, false, false, false, false, false, false],
-                "pt": [false, false, false, false, false, false, false, false]
-            }
-        },
+        
         {
             "id": 5,
             "name": "4A",
@@ -160,7 +124,8 @@
                 "Maciej Waleszczyński",
                 "Joanna Żabolicka",
                 "Paweł Żukowski",
-                "Adrian Łukasik"
+                "Adrian Łukasik",
+                "Michał Taborowski"
             ],
             "plan": {
                 "pon": [false, false, false, false, false, false, false, false],
@@ -183,7 +148,9 @@
                 "Małgorzata Zgiet-Niewiadomska",
                 "Jakub Sawulski",
                 "Yixuan Wang",
-                "Adrian Łukasik"
+                "Adrian Łukasik",
+                "Matthias Mueller",
+                "Yixuan Wang"
             ],
             "plan": {
                 "pon": [false, false, false, false, false, false, false, false],

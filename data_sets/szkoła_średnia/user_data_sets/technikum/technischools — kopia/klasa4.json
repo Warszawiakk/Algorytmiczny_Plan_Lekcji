@@ -21,23 +21,23 @@
             "hours": 1
         },
         {
-            "name": "JA",
+            "name": "Język Angielski",
             "hours": 3
         },
         {
-            "name": "JAZ",
+            "name": "Język Angielski Zawodowy",
             "hours": 1
         },
         {
-            "name": "JC",
+            "name": "Język Chiński",
             "hours": 2
         },
         {
-            "name": "Second_JON",
+            "name": "Drugi Język Nowożytny",
             "hours": 1
         },
         {
-            "name": "JP",
+            "name": "Język Polski",
             "hours": 3
         },
         {
@@ -53,11 +53,11 @@
             "hours": 2
         },
         {
-            "name": "POB",
+            "name": "Programowanie Obiektowe",
             "hours": 4
         },
         {
-            "name": "TIDA4",
+            "name": "TIDA",
             "hours": 2
         },
         {

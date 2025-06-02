@@ -205,7 +205,7 @@
             "name": "Patrycja",
             "surname": "Sawicka",
             "subjects": [
-                "Pam(a)"
+                "Pam(a)", "Pps"
             ]
         },
         {
@@ -229,7 +229,7 @@
             "name":"Adrian",
             "surname":"Łukasik",
             "subjects":[
-                "Bazy Danych", "Pn", "TIDA"
+                "Bazy Danych", "Pn", "TIDA", "NODE -N"
             ]
         },
         {
