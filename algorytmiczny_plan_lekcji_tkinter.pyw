@@ -37,8 +37,8 @@ class App(tk.Tk):
         self.geometry("800x500")
         self.iconbitmap("icon.ico")
         self.working_directory = "data_sets/szkoła_średnia/user_data_sets/"
-        self.live_preview_enabled = tk.BooleanVar(value=True)  # Zmienna kontrolna dla podglądu na żywo
-        self.progress_bar_enabled = tk.BooleanVar(value=True)  # Zmienna kontrolna dla paska postępu
+        self.live_preview_enabled = tk.BooleanVar(value=True)
+        self.progress_bar_enabled = tk.BooleanVar(value=True)
 
         self.main_menu()
 
@@ -68,7 +68,7 @@ class App(tk.Tk):
     def main_menu(self):
         self.clear_window()
 
-        title = tk.Label(self, text="ALGORYTMICZNY UKŁADACZ PLANU alpha 1.0", font=("Arial", 16, "bold"))
+        title = tk.Label(self, text="ALGORYTMICZNY UKŁADACZ PLANU Beta", font=("Arial", 16, "bold"))
         title.pack(pady=20)
 
         is_data_set_selected = self.working_directory != "data_sets/szkoła_średnia/user_data_sets/"
@@ -90,7 +90,6 @@ class App(tk.Tk):
 
 ####################################
 # DO ZROBIENIA:
-# OBLICZANIE PLANU
 # Importowanie danych z Excela do JSON.
 
 ####################################
@@ -130,7 +129,6 @@ class App(tk.Tk):
         live_preview_frame = tk.Frame(self)
         live_preview_frame.pack(pady=10, fill="both", expand=True)
 
-        # Load required files
         teacher_availability_path = os.path.join(self.working_directory, "teacher_availability.json")
         classes_path = os.path.join(self.working_directory, "classes.json")
         teachers_path = os.path.join(self.working_directory, "teachers.json")
@@ -143,7 +141,6 @@ class App(tk.Tk):
         classes = json.load(open(classes_path, 'r', encoding='utf-8'))
         teachers = json.load(open(teachers_path, 'r', encoding='utf-8'))
 
-        # Get all class year files
         class_year_files = [
             f for f in os.listdir(self.working_directory) if f.startswith("klasa") and f.endswith(".json")
         ]
@@ -151,12 +148,10 @@ class App(tk.Tk):
             messagebox.showerror("Błąd", "Brak roczników do przetworzenia.")
             return
 
-        # Progress bar setup
-        total_tasks = len(classes["classes"]) * len(class_year_files) * 8 * 5  # 8 hours/day, 5 days/week
+        total_tasks = len(classes["classes"]) * 8 * 5 -31
         progress_bar["maximum"] = total_tasks
         progress_value = 0
 
-        # Helper functions
         def restrict_fields(plan, teacher, teacher_availability, day, hour):
             day_to_index = {"pon": 0, "wt": 1, "sr": 2, "czw": 3, "pt": 4}
             day_index = day_to_index.get(day.lower())
@@ -179,7 +174,6 @@ class App(tk.Tk):
                     return True
             return False
 
-        # Process each class year
         for class_year_file in class_year_files:
             class_year_path = os.path.join(self.working_directory, class_year_file)
             class_year_data = json.load(open(class_year_path, 'r', encoding='utf-8'))
@@ -210,20 +204,55 @@ class App(tk.Tk):
                     max_attempts = 1000
 
                     while hours_filled < subject_hours and attempts < max_attempts:
-                        for day in plan.keys():
+                        for day in get_sorted_days(plan):
                             if hours_filled >= subject_hours:
                                 break
 
+                            subject_count = sum(1 for h in plan[day] if h == subject_name)
+                            if subject_count >= 3:
+                                continue
+
                             for hour in range(len(plan[day])):
-                                if plan[day][hour] is False:
+                                if hours_filled >= subject_hours:
+                                    break
+
+                                if plan[day][hour] is False:  
                                     if restrict_fields(plan, teacher["name"] + " " + teacher["surname"], teacher_availability, day, hour):
-                                        continue
+                                        continue 
+
                                     if is_teacher_busy(teacher["name"] + " " + teacher["surname"], day, hour, classes):
-                                        continue
+                                        continue  
+
+                                    if subject_hours - hours_filled > 1 and hour + 1 < len(plan[day]) and plan[day][hour + 1] is False:
+                                        if restrict_fields(plan, teacher["name"] + " " + teacher["surname"], teacher_availability, day, hour + 1):
+                                            continue
+                                        if is_teacher_busy(teacher["name"] + " " + teacher["surname"], day, hour + 1, classes):
+                                            continue
+
+                                        plan[day][hour] = subject_name
+                                        plan[day][hour + 1] = subject_name
+                                        hours_filled += 2
+                                        attempts = 0
+
+                                        print(f"Wstawiono blok 2 godzin: {subject_name}, Klasa: {class_name}, Dzień: {day}, Godziny: {hour}, {hour + 1}")
+                                        print(f"Wypełnione godziny: {hours_filled}/{subject_hours}")
+
+                                        if self.live_preview_enabled.get():
+                                            self.display_plan(plan, class_name, live_preview_frame)
+
+                                        progress_value += 2
+                                        progress_bar["value"] = progress_value
+                                        progress_counter_label.config(text=f"{progress_value}/{total_tasks} operacji wykonanych")
+                                        self.update_idletasks()
+
+                                        break
 
                                     plan[day][hour] = subject_name
                                     hours_filled += 1
                                     attempts = 0
+
+                                    print(f"Wstawiono: {subject_name}, Klasa: {class_name}, Dzień: {day}, Godzina: {hour}")
+                                    print(f"Wypełnione godziny: {hours_filled}/{subject_hours}")
 
                                     if self.live_preview_enabled.get():
                                         self.display_plan(plan, class_name, live_preview_frame)
@@ -232,7 +261,6 @@ class App(tk.Tk):
                                     progress_bar["value"] = progress_value
                                     progress_counter_label.config(text=f"{progress_value}/{total_tasks} operacji wykonanych")
                                     self.update_idletasks()
-                                    break
 
                         attempts += 1
 
@@ -1040,21 +1068,20 @@ class App(tk.Tk):
         self.remove_class_teacher()
 
     def display_plan(self, plan, class_name, live_preview_frame):
-        # Usuń poprzednią zawartość ramki
         for widget in live_preview_frame.winfo_children():
             widget.destroy()
 
-        # Dodaj nagłówek
         label = tk.Label(live_preview_frame, text=f"Podgląd planu dla klasy: {class_name}", font=("Arial", 14))
         label.pack(pady=10)
 
-        # Wyświetl plan
         for day, hours in plan.items():
             day_label = tk.Label(live_preview_frame, text=f"{day.capitalize()}: {', '.join(str(h) if h else '-' for h in hours)}")
             day_label.pack()
 
-        # Odśwież interfejs użytkownika
         self.update_idletasks()
+
+def get_sorted_days(plan):
+    return sorted(plan.keys(), key=lambda day: sum(1 for hour in plan[day] if hour is not False))
 
 def validate_json(data, required_keys):
     if not isinstance(data, dict):
