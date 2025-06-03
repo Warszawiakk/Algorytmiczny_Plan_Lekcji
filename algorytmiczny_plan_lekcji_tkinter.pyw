@@ -14,19 +14,22 @@ import os
 try:
     import tkinter as tk
 except ImportError:
-    print("Couldn't install tkinter. Trying to install, else, try downloading them manually.")
+    print("Couldn't import tkinter. Trying to install, else, try downloading it manually.")
     os.system('python -m pip install tkinter')
 import tkinter as tk
 
 try:
     import json
 except ImportError:
-    print("Couldn't install json. Trying to install, else, try downloading them manually.")
+    print("Couldn't import json. Trying to install, else, try downloading it manually.")
     os.system('python -m pip install json')
 import json
 from tkinter import ttk
-
-import random
+try:
+    import random
+except ImportError:
+    print("Couldn't import random. Trying to insatall, else, try downloading it manually.")
+    os.system('python -m pip install random')
 
 from tkinter import messagebox, simpledialog
 
@@ -148,7 +151,15 @@ class App(tk.Tk):
             messagebox.showerror("Błąd", "Brak roczników do przetworzenia.")
             return
 
-        total_tasks = len(classes["classes"]) * 8 * 5 -31
+        total_tasks = 0
+
+        for class_year_file in class_year_files:
+            class_year_path = os.path.join(self.working_directory, class_year_file)
+            class_year_data = json.load(open(class_year_path, 'r', encoding='utf-8'))
+
+            for subject in class_year_data.get("subjects", []):
+                total_tasks += int(subject["hours"])
+                
         progress_bar["maximum"] = total_tasks
         progress_value = 0
 
@@ -247,30 +258,31 @@ class App(tk.Tk):
 
                                         break
 
-                                    plan[day][hour] = subject_name
-                                    hours_filled += 1
-                                    attempts = 0
+                                plan[day][hour] = subject_name
+                                hours_filled += 1
+                                attempts = 0
 
-                                    print(f"Wstawiono: {subject_name}, Klasa: {class_name}, Dzień: {day}, Godzina: {hour}")
-                                    print(f"Wypełnione godziny: {hours_filled}/{subject_hours}")
+                                print(f"Wstawiono: {subject_name}, Klasa: {class_name}, Dzień: {day}, Godzina: {hour}")
+                                print(f"Wypełnione godziny: {hours_filled}/{subject_hours}")
 
-                                    if self.live_preview_enabled.get():
-                                        self.display_plan(plan, class_name, live_preview_frame)
+                                if self.live_preview_enabled.get():
+                                    self.display_plan(plan, class_name, live_preview_frame)
 
-                                    progress_value += 1
-                                    progress_bar["value"] = progress_value
-                                    progress_counter_label.config(text=f"{progress_value}/{total_tasks} operacji wykonanych")
-                                    self.update_idletasks()
+                                progress_value += 1
+                                progress_bar["value"] = progress_value
+                                progress_counter_label.config(text=f"{progress_value}/{total_tasks} operacji wykonanych")
+                                self.update_idletasks()
 
-                        attempts += 1
+                    attempts += 1
 
-                    if hours_filled < subject_hours:
-                        messagebox.showwarning(
-                            "Ostrzeżenie",
-                            f"Nie udało się przypisać wszystkich godzin dla przedmiotu {subject_name} w klasie {class_name}."
-                        )
+                if hours_filled < subject_hours:
+                    messagebox.showwarning(
+                        "Ostrzeżenie",
+                        f"Nie udało się przypisać wszystkich godzin dla przedmiotu {subject_name} w klasie {class_name}."
+                    )
 
         messagebox.showinfo("Sukces", "Plan został obliczony.")
+        self.save_plan_to_file(classes, classes_path)
 
 
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -1079,6 +1091,16 @@ class App(tk.Tk):
             day_label.pack()
 
         self.update_idletasks()
+
+    def save_plan_to_file(classes, classes_path):
+        confirm = messagebox.askyesno("Zapisz plan", "Czy chcesz zapisać obliczony plan do pliku classes.json?")
+        if confirm:
+            try:
+                with open(classes_path, 'w', encoding='utf-8') as file:
+                    json.dump({"classes": classes["classes"]}, file, ensure_ascii=False, indent=4)
+                messagebox.showinfo("Sukces", "Plan został zapisany w pliku classes.json.")
+            except Exception as e:
+                messagebox.showerror("Błąd", f"Nie udało się zapisać planu: {e}")
 
 def get_sorted_days(plan):
     return sorted(plan.keys(), key=lambda day: sum(1 for hour in plan[day] if hour is not False))
