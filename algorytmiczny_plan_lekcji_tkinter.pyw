@@ -245,6 +245,8 @@ class App(tk.Tk):
                                         hours_filled += 2
                                         attempts = 0
 
+                                        update_class_plan_in_file(classes_path, class_name, plan)
+
                                         print(f"Wstawiono blok 2 godzin: {subject_name}, Klasa: {class_name}, Dzień: {day}, Godziny: {hour}, {hour + 1}")
                                         print(f"Wypełnione godziny: {hours_filled}/{subject_hours}")
 
@@ -262,6 +264,8 @@ class App(tk.Tk):
                                     hours_filled += 1
                                     attempts = 0
 
+                                    update_class_plan_in_file(classes_path, class_name, plan)
+
                                     print(f"Wstawiono: {subject_name}, Klasa: {class_name}, Dzień: {day}, Godzina: {hour}")
                                     print(f"Wypełnione godziny: {hours_filled}/{subject_hours}")
 
@@ -273,13 +277,13 @@ class App(tk.Tk):
                                     progress_counter_label.config(text=f"{progress_value}/{total_tasks} operacji wykonanych")
                                     self.update_idletasks()
 
-                        attempts += 1
+                    attempts += 1
 
-                    if hours_filled < subject_hours:
-                        messagebox.showwarning(
-                            "Ostrzeżenie",
-                            f"Nie udało się przypisać wszystkich godzin dla przedmiotu {subject_name} w klasie {class_name}."
-                        )
+                if hours_filled < subject_hours:
+                    messagebox.showwarning(
+                        "Ostrzeżenie",
+                        f"Nie udało się przypisać wszystkich godzin dla przedmiotu {subject_name} w klasie {class_name}."
+                    )
 
         messagebox.showinfo("Sukces", "Plan został obliczony.")
 
@@ -1112,6 +1116,22 @@ def load_and_validate_json(path, required_keys):
     except Exception as e:
         messagebox.showerror("Błąd", f"Nie udało się załadować pliku {path}: {e}")
         return None
+
+def update_class_plan_in_file(classes_path, class_name, updated_plan):
+    try:
+        with open(classes_path, 'r+', encoding='utf-8') as file:
+            classes_data = json.load(file)
+
+            for class_data in classes_data["classes"]:
+                if class_data["name"] == class_name:
+                    class_data["plan"] = updated_plan
+                    break
+
+            file.seek(0)
+            json.dump(classes_data, file, ensure_ascii=False, indent=4)
+            file.truncate()
+    except Exception as e:
+        messagebox.showerror("Błąd", f"Nie udało się zaktualizować planu dla klasy {class_name}: {e}")
 
 if __name__ == "__main__":
     app = App()
