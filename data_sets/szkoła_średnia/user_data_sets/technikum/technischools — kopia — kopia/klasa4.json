@@ -1,0 +1,76 @@
+{
+    "subjects": [
+        {
+            "name": "Chemia",
+            "hours": "1"
+        },
+        {
+            "name": "Fizyka",
+            "hours": 2
+        },
+        {
+            "name": "Geografia",
+            "hours": 1
+        },
+        {
+            "name": "GW",
+            "hours": 1
+        },
+        {
+            "name": "Historia",
+            "hours": 1
+        },
+        {
+            "name": "Język Angielski",
+            "hours": 3
+        },
+        {
+            "name": "Język Angielski Zawodowy",
+            "hours": 1
+        },
+        {
+            "name": "Język Chiński",
+            "hours": 2
+        },
+        {
+            "name": "Drugi Język Nowożytny",
+            "hours": 1
+        },
+        {
+            "name": "Język Polski",
+            "hours": 3
+        },
+        {
+            "name": "Matematyka",
+            "hours": 4
+        },
+        {
+            "name": "Pam(a)",
+            "hours": 1
+        },
+        {
+            "name": "Pps",
+            "hours": 2
+        },
+        {
+            "name": "Programowanie Obiektowe",
+            "hours": 4
+        },
+        {
+            "name": "TIDA",
+            "hours": 2
+        },
+        {
+            "name": "WOS",
+            "hours": 1
+        },
+        {
+            "name": "WF",
+            "hours": 2
+        },
+        {
+            "name": "Zaw",
+            "hours": 4
+        }
+    ]
+}

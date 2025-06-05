@@ -1,0 +1,84 @@
+{
+    "subjects": [
+        {
+            "name": "Biologia",
+            "hours": 1
+        },
+        {
+            "name": "Chemia",
+            "hours": 2
+        },
+        {
+            "name": "Fizyka",
+            "hours": 2
+        },
+        {
+            "name": "Geografia",
+            "hours": 1
+        },
+        {
+            "name": "GW",
+            "hours": 1
+        },
+        {
+            "name": "Grafika Komputerowa",
+            "hours": 1
+        },
+        {
+            "name": "Historia",
+            "hours": 1
+        },
+        {
+            "name": "HIT",
+            "hours": 1
+        },
+        {
+            "name": "Informatyka",
+            "hours": 1
+        },
+        {
+            "name": "Język Angielski",
+            "hours": 3
+        },
+        {
+            "name": "Język Angielski Zawodowy",
+            "hours": 1
+        },
+        {
+            "name": "Język Chiński",
+            "hours": 2
+        },
+        {
+            "name": "Drugi Język Nowożytny",
+            "hours": 2
+        },
+        {
+            "name": "Język Polski",
+            "hours": 3
+        },
+        {
+            "name": "Matematyka",
+            "hours": 4
+        },
+        {
+            "name": "Pam(a)",
+            "hours": 2
+        },
+        {
+            "name": "Pn",
+            "hours": 2
+        },
+        {
+            "name": "Programowanie Obiektowe",
+            "hours": 2
+        },
+        {
+            "name": "TIDA",
+            "hours": 2
+        },
+        {
+            "name": "Zzp",
+            "hours": 1
+        }
+    ]
+}

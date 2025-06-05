@@ -1,0 +1,84 @@
+{
+    "subjects": [
+        {
+            "name": "Biologia",
+            "hours": 2
+        },
+        {
+            "name": "Chemia",
+            "hours": 1
+        },
+        {
+            "name": "Etyka",
+            "hours": 1
+        },
+        {
+            "name": "Fizyka",
+            "hours": 2
+        },
+        {
+            "name": "Geografia",
+            "hours": 2
+        },
+        {
+            "name": "GW",
+            "hours": 1
+        },
+        {
+            "name": "Grafika Komputerowa",
+            "hours": 1
+        },
+        {
+            "name": "Historia",
+            "hours": 2
+        },
+        {
+            "name": "HIT",
+            "hours": 1
+        },
+        {
+            "name": "Informatyka",
+            "hours": 1
+        },
+        {
+            "name": "Język Angielski",
+            "hours": 2
+        },
+        {
+            "name": "Język Angielski Zawodowy",
+            "hours": 1
+        },
+        {
+            "name": "Drugi Język Nowożytny",
+            "hours": 2
+        },
+        {
+            "name": "Język Polski",
+            "hours": 3
+        },
+        {
+            "name": "Matematyka",
+            "hours": 3
+        },
+        {
+            "name": "Programowanie aplikacji internetowych",
+            "hours": 4
+        },
+        {
+            "name": "Podstawy Programowania",
+            "hours": 2
+        },
+        {
+            "name": "Programowanie Obiektowe",
+            "hours": 2
+        },
+        {
+            "name": "Projektowanie Oprogramowania",
+            "hours": 2
+        },
+        {
+            "name": "WF",
+            "hours": 2
+        }
+    ]
+}
