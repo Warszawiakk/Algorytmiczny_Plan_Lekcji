@@ -24,11 +24,56 @@
                 "Aleksandra Muzal-Gil"
             ],
             "plan": {
-                "pon": [false, false, false, false, false, false, false, false],
-                "wt": [false, false, false, false, false, false, false, false],
-                "sr": [false, false, false, false, false, false, false, false],
-                "czw": [false, false, false, false, false, false, false, false],
-                "pt": [false, false, false, false, false, false, false, false]
+                "pon": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "wt": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "sr": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "czw": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "pt": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
             }
         },
         {
@@ -59,11 +104,56 @@
                 "Michał Taborowski"
             ],
             "plan": {
-                "pon": [false, false, false, false, false, false, false, false],
-                "wt": [false, false, false, false, false, false, false, false],
-                "sr": [false, false, false, false, false, false, false, false],
-                "czw": [false, false, false, false, false, false, false, false],
-                "pt": [false, false, false, false, false, false, false, false]
+                "pon": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "wt": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "sr": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "czw": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "pt": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
             }
         },
         {
@@ -96,14 +186,58 @@
                 "M A"
             ],
             "plan": {
-                "pon": [false, false, false, false, false, false, false, false],
-                "wt": [false, false, false, false, false, false, false, false],
-                "sr": [false, false, false, false, false, false, false, false],
-                "czw": [false, false, false, false, false, false, false, false],
-                "pt": [false, false, false, false, false, false, false, false]
+                "pon": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "wt": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "sr": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "czw": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "pt": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
             }
         },
-        
         {
             "id": 5,
             "name": "4A",
@@ -128,11 +262,56 @@
                 "Michał Taborowski"
             ],
             "plan": {
-                "pon": [false, false, false, false, false, false, false, false],
-                "wt": [false, false, false, false, false, false, false, false],
-                "sr": [false, false, false, false, false, false, false, false],
-                "czw": [false, false, false, false, false, false, false, false],
-                "pt": [false, false, false, false, false, false, false, false]
+                "pon": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "wt": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "sr": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "czw": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "pt": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
             }
         },
         {
@@ -153,11 +332,56 @@
                 "Yixuan Wang"
             ],
             "plan": {
-                "pon": [false, false, false, false, false, false, false, false],
-                "wt": [false, false, false, false, false, false, false, false],
-                "sr": [false, false, false, false, false, false, false, false],
-                "czw": [false, false, false, false, false, false, false, false],
-                "pt": [false, false, false, false, false, false, false, false]
+                "pon": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "wt": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "sr": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "czw": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "pt": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
             }
         }
     ]
