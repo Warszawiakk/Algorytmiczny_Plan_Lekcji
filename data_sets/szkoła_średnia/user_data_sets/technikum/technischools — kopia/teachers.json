@@ -6,7 +6,14 @@
             "surname": "Janeczek",
             "subjects": [
                 "Matematyka", "GW"
-            ]
+            ],
+            "availability": {
+                "pon": [],
+                "wt": [],
+                "sr": [],
+                "czw": [],
+                "pt": []
+            }
         },
         {
             "id": 2,
