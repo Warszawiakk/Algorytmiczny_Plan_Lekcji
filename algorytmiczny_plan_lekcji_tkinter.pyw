@@ -193,7 +193,6 @@ class App(tk.Tk):
             for clas_index, clas in enumerate(classes["classes"], start=1):
                 class_name = clas["name"]
 
-                # Dopasowanie pliku rocznika do klasy
                 if not class_name.startswith(class_year_file.replace("klasa", "").replace(".json", "")):
                     continue
 
@@ -234,7 +233,7 @@ class App(tk.Tk):
                                         continue 
 
                                     if is_teacher_busy(teacher["name"] + " " + teacher["surname"], day, hour, classes):
-                                        continue  
+                                        continue
 
                                     if subject_hours - hours_filled > 1 and hour + 1 < len(plan[day]) and plan[day][hour + 1] is False:
                                         if restrict_fields(plan, teacher["name"] + " " + teacher["surname"], teacher_availability, day, hour + 1):
