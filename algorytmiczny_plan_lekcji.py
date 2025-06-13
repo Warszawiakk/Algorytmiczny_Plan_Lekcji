@@ -143,6 +143,7 @@ class App(tk.Tk):
         teacher_availability = json.load(open(teacher_availability_path, 'r', encoding='utf-8'))
         classes = json.load(open(classes_path, 'r', encoding='utf-8'))
         teachers = json.load(open(teachers_path, 'r', encoding='utf-8'))
+        self.reset_class_plans(classes_path)
 
         class_year_files = [
             f for f in os.listdir(self.working_directory) if f.startswith("klasa") and f.endswith(".json")
@@ -190,12 +191,13 @@ class App(tk.Tk):
             class_year_data = json.load(open(class_year_path, 'r', encoding='utf-8'))
 
             for clas_index, clas in enumerate(classes["classes"], start=1):
-                expected_class_file = f"klasa{clas_index}.json"
-                if class_year_file != expected_class_file:
+                class_name = clas["name"]
+
+                # Dopasowanie pliku rocznika do klasy
+                if not class_name.startswith(class_year_file.replace("klasa", "").replace(".json", "")):
                     continue
 
                 plan = clas["plan"]
-                class_name = clas["name"]
                 subjects = class_year_data["subjects"]
 
                 for subject in subjects:
@@ -286,8 +288,22 @@ class App(tk.Tk):
                     )
 
         messagebox.showinfo("Sukces", "Plan został obliczony.")
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    def reset_class_plans(self, classes_path):
+        try:
+            with open(classes_path, 'r+', encoding='utf-8') as file:
+                classes_data = json.load(file)
 
+                for class_data in classes_data["classes"]:
+                    if "plan" in class_data and isinstance(class_data["plan"], dict):
+                        class_data["plan"] = {day: [False] * 8 for day in ["pon", "wt", "sr", "czw", "pt"]}
 
+                file.seek(0)
+                json.dump(classes_data, file, ensure_ascii=False, indent=4)
+                file.truncate()
+
+        except Exception as e:
+            messagebox.showerror("Błąd", f"Nie udało się zresetować planów klas: {e}")
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
     def data_set_manager(self):
